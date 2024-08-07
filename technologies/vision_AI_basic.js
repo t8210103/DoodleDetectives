@@ -1,4 +1,4 @@
-var descriptions = [];
+let descriptions = [];
 const vision = require("@google-cloud/vision");
 
 const credentials = JSON.parse(JSON.stringify({
@@ -50,7 +50,7 @@ async function detectProperties(filePath) {
 
 async function run() {
     const filePath = "C:\\Users\\iason\\wsApp\\WebSockets\\images\\albumcover.jpg";
-    const descriptions = await detectProperties(filePath);
+    descriptions = await detectProperties(filePath);
     console.log('All Descriptions:', descriptions);
 }
 

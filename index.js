@@ -18,7 +18,42 @@ const websocket = new WebSocketServer({
 
 httpserver.listen(8080, () => console.log("Server is listening on port 8080"));
 
-websocket.on("request", request => {
+websocket.on("request", request => {        //when each client first connects
+
+    //where new clients connect
+    const connection = request.accept(null, request.origin);
+
+    console.log("WebSocket connection accepted");
+
+    //what to do when the connections first opens
+    connection.on("open", () => console.log("Connection opened"));
+
+    //what to do when the connections closes
+    connection.on("close", () => {
+        console.log("Connection closed");
+        connections = connections.filter(conn => conn !== connection);
+    });
+
+    connection.on("message", message => { //where the important things happen -- the looped code
+
+        const message = JSON.parse(message.utf8Data);
+
+    });
+
+    //Creating clientId
+    const clientId = guid();
+    clients[clientId] = {
+        "connection": connection
+    }
+
+    
+    const payload = {
+        "method": "connect",
+        "clientId": clientId
+        //fill this
+    }
+    //Sending to the client (when each client first connects)
+    connection.send(JSON.stringify(payload))
 
 });
 

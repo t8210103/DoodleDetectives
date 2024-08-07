@@ -6,6 +6,31 @@
     <title>Document</title>
 </head>
 <body>
-    
+
+    <h1>AI game</h1>
+    <button id = "btnCreate">New Game</button>
+
+    <script>
+        let socket = new WebSocket("ws://localhost:8080");
+        
+        let clientId = null;
+        const btnCreate = document.getElementById("btnCreate");
+
+        btnCreate.addEventListener("click", e => {
+
+            const payload = {
+                "method": "create",
+                "clientId": clientId
+            }
+
+            socket.send(JSON.stringify(payload));
+        })
+
+        socket.onmessage = message => {
+            const response = JSON.parse(message.data);
+
+        }
+
+    </script>
 </body>
 </html>
