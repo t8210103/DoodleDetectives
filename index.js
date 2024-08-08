@@ -52,7 +52,7 @@ websocket.on("request", request => {        //when each client first connects
         "clientId": clientId
         //fill this
     }
-    //Sending to the client (when each client first connects)
+    
     connection.send(JSON.stringify(payload))
 
 });

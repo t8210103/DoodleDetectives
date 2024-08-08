@@ -24,21 +24,43 @@ const config = {
 
 const client = new vision.ImageAnnotatorClient(config);
 
-async function detectProperties(filePath) {
+async function detectProperties(base64String) {
     let descriptions = [];
 
     try {
-        //label descriptions (probably most useful)
-        var [result] = await client.labelDetection(filePath);
-        descriptions = descriptions.concat(result.labelAnnotations.map(annotation => annotation.description));
+        const imageBuffer = Buffer.from(base64String, 'base64');
+        const request = {
+            image: { content: imageBuffer },
+            features: [
+                { type: 'LABEL_DETECTION' },
+                { type: 'WEB_DETECTION' },
+                { type: 'LANDMARK_DETECTION' },
+                { type: 'OBJECT_LOCALIZATION' }
+            ]
+        };
 
-        //web descriptions
-        [result] = await client.webDetection(filePath);
-        descriptions = descriptions.concat(result.webDetection.webEntities.map(entity => entity.description).filter(description => description));
+        const [result] = await client.annotateImage(request);
 
-        //landmark descriptions
-        [result] = await client.landmarkDetection(filePath);
-        descriptions = descriptions.concat(result.landmarkAnnotations.map(annotation => annotation.description));
+        // Label descriptions (probably most useful)
+        if (result.labelAnnotations) {
+            descriptions = descriptions.concat(result.labelAnnotations.map(annotation => annotation.description));
+        }
+
+        // Web descriptions
+        if (result.webDetection && result.webDetection.webEntities) {
+            descriptions = descriptions.concat(result.webDetection.webEntities.map(entity => entity.description).filter(description => description));
+        }
+
+        // Landmark descriptions
+        if (result.landmarkAnnotations) {
+            descriptions = descriptions.concat(result.landmarkAnnotations.map(annotation => annotation.description));
+        }
+
+        // Object descriptions
+        if (result.landmarkAnnotations) {
+            descriptions = descriptions.concat(result.localizedObjectAnnotations.map(annotation => annotation.name));
+        }
+        
 
     } catch (err) {
         console.error(err);
@@ -50,7 +72,12 @@ async function detectProperties(filePath) {
 
 async function run() {
     const filePath = "C:\\Users\\iason\\wsApp\\WebSockets\\images\\albumcover.jpg";
-    descriptions = await detectProperties(filePath);
+    // Read the file
+    const fs = require('fs');
+    const imageBuffer = fs.readFileSync(filePath);
+    // Convert to Base64
+    const base64String = imageBuffer.toString('base64');
+    descriptions = await detectProperties(base64String);
     console.log('All Descriptions:', descriptions);
 }
 

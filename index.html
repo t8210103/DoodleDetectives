@@ -12,7 +12,7 @@
 
     <script>
         let socket = new WebSocket("ws://localhost:8080");
-        
+
         let clientId = null;
         const btnCreate = document.getElementById("btnCreate");
 
@@ -29,7 +29,12 @@
         socket.onmessage = message => {
             const response = JSON.parse(message.data);
 
+            if (response.method === "connect") {
+                clientId = response.clientId;
+            }
+            
         }
+
 
     </script>
 </body>
