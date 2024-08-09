@@ -1,0 +1,13 @@
+.availableGames {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 200px;
+    border: thick solid black;
+    padding-left: 20px;
+    padding-top: 20px;
+}
+
+.joinButton {
+    width: 200px;
+    height: 30px;
+}
