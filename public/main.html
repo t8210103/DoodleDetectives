@@ -37,9 +37,13 @@
         mainSocket.onmessage = message => {
             const response = JSON.parse(message.data);
 
-            if (response.method === "connect") {
+            if (response.method === "allGames" || response.method === "connect") {
 
-                clientId = response.clientId;
+                if (response.method === "connect") {
+                    clientId = response.clientId;
+                }
+
+                console.log("Client id:", clientId);
 
                 if (response.games) {
 
@@ -47,7 +51,7 @@
 
                     console.log(response.games);
                     console.log("Hi");
-                    
+
                     while (divPlayers.firstChild) {
                         divPlayers.removeChild(divPlayers.firstChild);
                     }
@@ -75,7 +79,7 @@
                                 "gameId": gameId,
                             }
                             mainSocket.send(JSON.stringify(payload));
-                            window.location.replace("./gamePage.html");
+                            window.location.href = `gamePage.html?clientId=${encodeURIComponent(clientId)}&gameId=${encodeURIComponent(gameId)}`;
                         })
                         d.appendChild(b)
                         divPlayers.appendChild(d);
@@ -87,7 +91,7 @@
 
 
 
-                //window.location.replace("./gamePage.html");
+                //window.location.href = `gamePage.html?clientId=${encodeURIComponent(clientId)}&gameId=${encodeURIComponent(gameId)}`;
             }
 
 /*

@@ -1,37 +1,40 @@
 const { visionAI, guid, updateAvailableGames } = require('./functions');
 
-//websockets
-//const { response, json } = require("express"); 
-const http = require("http");
-const express = require("express");
-const app = require("express")();
-app.get("/", (req, res)=> res.sendFile(__dirname + "/public/main.html"));
-app.listen(8081, ()=>console.log("Listening on http port 8081"));
-const WebSocketServer = require("websocket").server;
-
-app.use(express.static(__dirname + '/public'));
-
-//hashmap
+//hashmaps
 const clients = {};
 const games = {};
 
 //websockets
-const httpserver = http.createServer((req, res) => 
-    console.log("Received an HTTP request")
-);
+//const { response, json } = require("express"); 
+const http = require("http");
+const express = require("express");
+const WebSocketServer = require("websocket").server;
 
-const websocket = new WebSocketServer({
-    "httpServer": httpserver
+// Setup the main app (for main.html)
+const appMain = express();
+const mainServer = http.createServer(appMain);
+appMain.get("/", (req, res) => res.sendFile(__dirname + "/public/main.html"));
+appMain.use(express.static(__dirname + '/public'));
+mainServer.listen(8080, () => console.log("Listening on http port 8080 - main"));
+
+// Setup the game app (for gamePage.html)
+const appGame = express();
+const gameServer = http.createServer(appGame);
+appGame.get("/", (req, res) => res.sendFile(__dirname + "/public/gamePage.html"));
+appGame.use(express.static(__dirname + '/public'));
+gameServer.listen(9090, () => console.log("Listening on http port 9090 - gamePage"));
+
+// WebSocket server for main page
+const wsServerMain = new WebSocketServer({
+    httpServer: mainServer,
 });
 
-httpserver.listen(8080, () => console.log("Server is listening on port 8080"));
 
-websocket.on("request", request => {        //when each client first connects
+
+wsServerMain.on("request", request => {        //when each client first connects
 
     //where new clients connect
     const connection = request.accept(null, request.origin);
-    let test = guid();
-    console.log(test);
 
     //what to do when the connections first opens
     connection.on("open", () => console.log("Connection opened"));
@@ -44,6 +47,7 @@ websocket.on("request", request => {        //when each client first connects
 
     //Creating clientId
     const clientId = guid();
+    console.log(clientId);
     clients[clientId] = {
         "connection": connection
     }
@@ -147,4 +151,15 @@ websocket.on("request", request => {        //when each client first connects
 
 
 
+});
+
+// WebSocket server for game page
+const wsServerGame = new WebSocketServer({
+    httpServer: gameServer,
+});
+
+wsServerGame.on('request', function(request) {
+    const connection = request.accept(null, request.origin);
+    console.log("WebSocket connection established for game");
+    // Handle WebSocket communication
 });

@@ -17,7 +17,7 @@ function guid() {
 function updateAvailableGames(games, clientId, clients) {
 
     const payload = {
-        "method": "connect",
+        "method": "allGames",
         "clientId": clientId,
         "games": games
     }
