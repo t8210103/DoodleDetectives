@@ -11,19 +11,17 @@
 
     <h1>AI game</h1>
     <button id = "btnCreate">Create Game</button>
-    <button id="btnJoin">Join Game</button>
     <div id = "divPlayers"></div>
     <div id = "divBoard"></div>
     
 
     <script>
-        let socket = new WebSocket("ws://localhost:8080");
+        let mainSocket = new WebSocket("ws://localhost:8080");
 
         let clientId = null;
         let gameId = null;
         const btnCreate = document.getElementById("btnCreate");
         const divPlayers = document.getElementById("divPlayers");
-        const btnJoin = document.getElementById("btnJoin");
         const divBoard = document.getElementById("divBoard");
 
         btnCreate.addEventListener("click", e => {
@@ -33,21 +31,10 @@
                 "clientId": clientId
             }
 
-            socket.send(JSON.stringify(payload));
+            mainSocket.send(JSON.stringify(payload));
         })
 
-
-        btnJoin.addEventListener("click", e => {
-
-            const payload = {
-                "method": "join",
-                "clientId": clientId
-            }
-
-            socket.send(JSON.stringify(payload));
-        })
-
-        socket.onmessage = message => {
+        mainSocket.onmessage = message => {
             const response = JSON.parse(message.data);
 
             if (response.method === "connect") {
@@ -87,7 +74,8 @@
                                 "clientId": clientId,
                                 "gameId": gameId,
                             }
-                            socket.send(JSON.stringify(payload));
+                            mainSocket.send(JSON.stringify(payload));
+                            window.location.replace("./gamePage.html");
                         })
                         d.appendChild(b)
                         divPlayers.appendChild(d);
@@ -140,7 +128,7 @@
                             "ballId": b.tag,
                             "color": playerColor
                         }
-                        socket.send(JSON.stringify(payload));
+                        mainSocket.send(JSON.stringify(payload));
                     })
                     divBoard.appendChild(b);
                 }
@@ -171,7 +159,7 @@
                             "clientId": clientId,
                             "gameId": gameId
                         }
-                        socket.send(JSON.stringify(payload));
+                        mainSocket.send(JSON.stringify(payload));
                     })
                 }
 

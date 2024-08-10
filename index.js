@@ -5,7 +5,7 @@ const { visionAI, guid, updateAvailableGames } = require('./functions');
 const http = require("http");
 const express = require("express");
 const app = require("express")();
-app.get("/", (req, res)=> res.sendFile(__dirname + "/public/index.html"));
+app.get("/", (req, res)=> res.sendFile(__dirname + "/public/main.html"));
 app.listen(8081, ()=>console.log("Listening on http port 8081"));
 const WebSocketServer = require("websocket").server;
 

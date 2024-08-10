@@ -10,7 +10,7 @@
     <button id="btnCheck">Submit to AI</button>
     <script>
         // Important: Make sure clientId and gameId are parsed and handled properly (from the redirection) (Maybe iframes?? - see youtube)
-        let socket2 = new WebSocket("ws://localhost:8080");
+        let gameSocket = new WebSocket("ws://localhost:8080");
         var drawing = document.getElementById("drawing");
         let base64String = null;
         let attempt = null;
@@ -25,10 +25,10 @@
                 "base64String": base64String
             }
 
-            socket.send(JSON.stringify(payload));
+            gameSocket.send(JSON.stringify(payload));
         })
 
-        socket2.onmessage = message => {
+        gameSocket.onmessage = message => {
             const response = JSON.parse(message.data);
 
             if (response.method === "check") {
