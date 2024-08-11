@@ -11,6 +11,7 @@
   "description": "This repository focuses on resume creation and updating.",
   "dependencies": {
     "@google-cloud/vision": "^4.3.0",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "websocket": "^1.0.35",
     "ws": "^8.18.0",
