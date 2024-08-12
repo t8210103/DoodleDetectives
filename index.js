@@ -60,7 +60,7 @@ wsServerMain.on("request", request => {        //when each client first connects
         //fill this
     }
 
-    connection.send(JSON.stringify(payload))
+    connection.send(JSON.stringify(payload));
 
     connection.on("message", message => { //where the important things happen -- the looped code
 
@@ -72,7 +72,7 @@ wsServerMain.on("request", request => {        //when each client first connects
 
             games[gameId] = {
                 "id": gameId,
-                "toDraw": "Cat", //Change this so that toDraw is a random "thing" that players have to draw
+                "toDraw": "Cat", // Connect a random word generator
                 "clients": []
             }
 
@@ -118,10 +118,55 @@ wsServerMain.on("request", request => {        //when each client first connects
             })
         }
 
+    });
+
+
+
+});
+
+//                                                                                       ---------------------
+// WebSocket server for game page
+const wsServerGame = new WebSocketServer({
+    httpServer: gameServer,
+});
+
+wsServerGame.on('request', function(request) {
+
+    //where new clients connect
+    const connection = request.accept(null, request.origin);
+
+    //what to do when the connections first opens
+    connection.on("open", () => console.log("Connection opened"));
+
+    //what to do when the connections closes
+    connection.on("close", () => {
+        console.log("Connection closed");
+        delete clients[clientId];
+    });
+    
+    clients[clientId] = {
+        "connection": connection
+    }
+    
+    const payload = {
+        "method": "connect",
+        "clientId": clientId,
+        ...(Object.keys(games).length > 0 && { "games": games }) // Basically if (games) { "games": games }
+        //fill this
+    }
+
+    connection.send(JSON.stringify(payload));
+
+    connection.on("message", message => { //where the important things happen -- the looped code
+
+        result = JSON.parse(message.utf8Data);
+
         if (result.method === "check") {
             const base64String = result.base64String;
+            
             const properties = []
             const clientId = result.clientId;
+            const toDraw = "Cat"; // game[result.gameId].toDraw   -- see what else have to get from URL in order for this to work (already have clientId, gameId)
             const attempt = false;
 
             properties = visionAI(base64String);
@@ -149,17 +194,4 @@ wsServerMain.on("request", request => {        //when each client first connects
 
     });
 
-
-
-});
-
-// WebSocket server for game page
-const wsServerGame = new WebSocketServer({
-    httpServer: gameServer,
-});
-
-wsServerGame.on('request', function(request) {
-    const connection = request.accept(null, request.origin);
-    console.log("WebSocket connection established for game");
-    // Handle WebSocket communication
 });
