@@ -1,4 +1,4 @@
-const { visionAI, guid, updateAvailableGames, visionAI } = require('./functions');
+const { guid, updateAvailableGames, updateLobbyState, visionAI } = require('./public/functions');
 
 //hashmaps
 const clients = {};
@@ -13,16 +13,16 @@ const WebSocketServer = require("websocket").server;
 // Setup the main app (for main.html)
 const appMain = express();
 const mainServer = http.createServer(appMain);
-appMain.get("/", (req, res) => res.sendFile(__dirname + "/public/main.html"));
 appMain.use(express.static(__dirname + '/public'));
+appMain.get("/", (req, res) => res.sendFile(__dirname + "/public/main.html"));
 mainServer.listen(8080, () => console.log("Listening on http port 8080 - main"));
 
-// Setup the game app (for gamePage.html)
+// Setup the game app (for gameLobby.html)
 const appGame = express();
 const gameServer = http.createServer(appGame);
-appGame.get("/", (req, res) => res.sendFile(__dirname + "/public/gamePage.html"));
 appGame.use(express.static(__dirname + '/public'));
-gameServer.listen(9090, () => console.log("Listening on http port 9090 - gamePage"));
+appGame.get("/", (req, res) => res.sendFile(__dirname + "/public/gameLobby.html"));
+gameServer.listen(9090, () => console.log("Listening on http port 9090 - gameLobby"));
 
 // WebSocket server for main page
 const wsServerMain = new WebSocketServer({
@@ -69,16 +69,20 @@ wsServerMain.on("request", request => {        //when each client first connects
         if (result.method === "create") {
             const gameId = guid();
             const clientId = result.clientId;
+            const players = result.players;
 
             games[gameId] = {
                 "id": gameId,
                 "toDraw": "Cat", // Connect a random word generator
+                "players": players, //how many players should join before starting
                 "clients": []
             }
 
             const payload = {
                 "method": "create",
-                "games": games
+                "games": games,
+                "game": games[gameId], // info necessary for auto joining the created game
+                "clientId": clientId
             }
 
             const con = clients[clientId].connection;
@@ -90,33 +94,6 @@ wsServerMain.on("request", request => {        //when each client first connects
             con.send(JSON.stringify(payload));        
             
         }
-        
-        if (result.method === "join") {
-            const clientId = result.clientId;
-            const gameId = result.gameId;
-            const game = games[gameId];
-            if (game.clients.length >= 3) {
-                //max players reach
-                return;
-            }
-            const color = {"0": "Red", "1": "Green", "2": "Blue"} [game.clients.length] // return color of player according to length
-            game.clients.push({
-                "clientId": clientId,
-                "color": color
-            })
-
-            //if (game.clients.length === 3 || game.clients.length === 2) updateGameState();  // Only work for 2 or 3 people online
-
-            const payload = {
-                "method": "join",
-                "game": game
-            }
-
-            game.clients.forEach(c => {
-                const con = clients[clientId].connection;
-                con.send(JSON.stringify(payload));
-            })
-        }
 
     });
 
@@ -125,7 +102,7 @@ wsServerMain.on("request", request => {        //when each client first connects
 });
 
 //                                                                                       ---------------------
-// WebSocket server for game page
+// WebSocket server for lobby page
 const wsServerGame = new WebSocketServer({
     httpServer: gameServer,
 });
@@ -144,29 +121,62 @@ wsServerGame.on('request', function(request) {
         delete clients[clientId];
     });
     
-    clients[clientId] = {
-        "connection": connection
-    }
-    
     const payload = {
-        "method": "connect",
-        "clientId": clientId,
-        ...(Object.keys(games).length > 0 && { "games": games }) // Basically if (games) { "games": games }
-        //fill this
+        "method": "connect"
     }
 
     connection.send(JSON.stringify(payload));
 
+
     connection.on("message", message => { //where the important things happen -- the looped code
 
         result = JSON.parse(message.utf8Data);
+
+        /* if (result.method === "connect") {
+            clients[result.clientId] = {
+                "connection": connection
+            }
+        }
+        */
+
+        if (result.method === "join") {  // Here make the game initiation logic??
+
+            const game = result.game;
+            const clientId = result.clientId;
+
+            clients[result.clientId] = {
+                "connection": connection
+            }
+
+            //const color = {"0": "Red", "1": "Green", "2": "Blue"} [game.clients.length] // return color of player according to length
+            game.clients.push({
+                "clientId": clientId,
+                //"color": color
+            })
+
+            // if (game.clients.length === 2) updateGameState();  // Only work for 2 people online
+
+            const payload = {
+                "method": "join",
+                "game": game
+            }
+
+            game.clients.forEach(c => {
+                const con = clients[clientId].connection;
+                con.send(JSON.stringify(payload));
+            })
+        }
+
+        if (result.method === "waitPlayers") {
+            updateLobbyState(response.game, response.clientId);
+        }
 
         if (result.method === "check") {
             const base64String = result.base64String;
             
             const properties = []
             const clientId = result.clientId;
-            const toDraw = "Cat"; // game[result.gameId].toDraw   -- see what else have to get from URL in order for this to work (already have clientId, gameId)
+            const toDraw = "Cat"; // game[result.gameId].toDraw   -- see what else you have to get from URL in order for this to work
             const attempt = false;
 
             properties = visionAI(base64String);

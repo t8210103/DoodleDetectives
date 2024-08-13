@@ -13,8 +13,8 @@
     <button id = "btnCreate">Create Game</button>
     <div id = "divPlayers"></div>
     <div id = "divBoard"></div>
+    <div id="inputContainer"></div>
     
-
     <script>
         let mainSocket = new WebSocket("ws://localhost:8080");
 
@@ -26,12 +26,31 @@
 
         btnCreate.addEventListener("click", e => {
 
-            const payload = {
-                "method": "create",
-                "clientId": clientId
-            }
+            const numPlayers = document.createElement("input")
+            numPlayers.classList.add("inputPlayers");
+            numPlayers.placeholder = "How many players?";
 
-            mainSocket.send(JSON.stringify(payload));
+            const parentElement = document.getElementById("inputContainer");
+            parentElement.appendChild(numPlayers);
+
+            numPlayers.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+                    const players = numPlayers.value;
+
+                    const payload = {
+                        "method": "create",
+                        "clientId": clientId,
+                        "numPlayers": players
+                    }
+
+                    mainSocket.send(JSON.stringify(payload));
+
+                }
+            })
+
+
         })
 
         mainSocket.onmessage = message => {
@@ -60,7 +79,7 @@
                             divBoard.removeChild(divBoard.firstChild);
                     }
 
-                    for (const gameId in response.games) {  // Probably do this in the connect
+                    for (const gameId in response.games) {
                         game = response.games[gameId]; //each game
                         //outside box
                         const d = document.createElement("div");
@@ -68,18 +87,18 @@
                         d.textContent = game.id;
                         divPlayers.appendChild(d);
 
-                        //inside button
+                        //inside button - join button
                         const b = document.createElement("button");
                         b.classList.add("joinButton");
                         b.textContent = "Click to join game";
-                        b.addEventListener("click", e => { //Click to play/join a game
+                        b.addEventListener("click", e => { //Click to join a game
                             const payload = {
-                                "method": "play",
+                                "method": "join",
                                 "clientId": clientId,
-                                "gameId": gameId,
+                                "game": game
                             }
-                            mainSocket.send(JSON.stringify(payload));
-                            window.location.href = `gamePage.html?clientId=${encodeURIComponent(clientId)}&gameId=${encodeURIComponent(gameId)}`;
+                           // window.location.href = `gameLobby.html?payload=${encodeURIComponent(JSON.stringify(payload))}`;
+
                         })
                         d.appendChild(b)
                         divPlayers.appendChild(d);
@@ -89,9 +108,36 @@
 
             if (response.method === "create") {
 
+                const payload = {
+                    "method": "join",
+                    "clientId": response.clientId,
+                    "game": response.game
+                }
+
+                const stringPayload = JSON.stringify(payload);
+                const myURL = new URL(`http://localhost:9090/gameLobby.html`);
+                myURL.searchParams.set("payload", stringPayload);
+                window.location.href = myURL.href;
+                
+                // Handle navigation to the game lobby
+                function navigateToGameLobby(payload) {
+                    const stringPayload = JSON.stringify(payload);
+
+                    // Dynamically load the gameLobby content, avoiding full page reload
+                    fetch(`/gameLobby.html`)
+                        .then(response => response.text())
+                        .then(html => {
+                            document.getElementById('content').innerHTML = html;
+                            
+                            // Initialize gameLobby.js or inline script execution
+                            initGameLobby(stringPayload);  // You'd define this function to handle game lobby initialization
+                        });
+
+                    // Maintain WebSocket connection here or establish a new one in gameLobby
+                }
 
 
-                //window.location.href = `gamePage.html?clientId=${encodeURIComponent(clientId)}&gameId=${encodeURIComponent(gameId)}`;
+                // window.location.href = `gameLobby.html?payload=${encodeURIComponent(JSON.stringify(payload))}`;  //Fix this so that objects go through - WORSE case recreate object with data (if absolutely necessary - bad solution)
             }
 
 /*
@@ -167,7 +213,7 @@
                     })
                 }
 
-                window.location.replace("./gamePage.html");
+                window.location.replace("./gameLobby.html");
             }
 
 

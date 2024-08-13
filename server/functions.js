@@ -27,6 +27,21 @@ function updateAvailableGames(games, clientId, clients) {
     setTimeout(updateAvailableGames, 50)
 }
 
+function updateLobbyState(game, clientId) {
+
+    const payload = {
+        "method": "join",
+        "clientId": clientId,
+        "game": game
+    }
+
+    clients[clientId].connection.send(JSON.stringify(payload));
+
+    setTimeout(updateLobbyState, 50)
+}
+
+
+
 function visionAI(base64String) {
 
     require('dotenv').config();
@@ -114,4 +129,4 @@ function visionAI(base64String) {
 }
 
 
-module.exports = { visionAI, guid, updateAvailableGames, visionAI };
+module.exports = { visionAI, guid, updateAvailableGames, updateLobbyState };
