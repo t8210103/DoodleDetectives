@@ -1,4 +1,4 @@
-const { guid, updateAvailableGames, updateLobbyState, visionAI } = require('./public/functions');
+const { guid, updateAvailableGames, updateLobbyState, visionAI } = require('./functions');
 
 //hashmaps
 const clients = {};
