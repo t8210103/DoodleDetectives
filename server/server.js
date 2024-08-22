@@ -21,7 +21,7 @@ wss.on('connection', (ws) => {
   const payload = {
       "method": "connect",
       "clientId": clientId,
-      ...(Object.keys(games).length > 0 && { "games": games }) // Basically if (games) { "games": games }
+      ...(Object.keys(games).length > 0 && { "games": games }) // Loads existing games
   };
 
   ws.send(JSON.stringify(payload));
@@ -35,18 +35,17 @@ wss.on('connection', (ws) => {
     if (result.method === "create") {
       const gameId = guid();
       const clientId = result.clientId;
-      //const players = result.players;
+      const numPlayers = result.numPlayers;
 
       games[gameId] = {
           "id": gameId,
           "toDraw": "Cat", // Replace this with a random word generator function if needed
-         // "players": players,
+          "numPlayers": numPlayers,
           "clients": []
       };
 
       const payload = {
-          "method": "create",
-          "games": games,
+          "method": "join",
           "game": games[gameId],
           "clientId": clientId
       };
@@ -60,7 +59,33 @@ wss.on('connection', (ws) => {
 
       // Send the game creation payload to the client
       con.send(JSON.stringify(payload));
-      console.log("inside server create method");
+    }
+
+    if (result.method === "join") {  // Here make the game initiation logic??
+
+      const game = result.game;
+      const clientId = result.clientId;
+
+      game.clients.push({
+          "clientId": clientId,
+          //more specs
+      })
+
+      // if (game.clients.length === 2) updateGameState();  // Only work for 2 people online
+      //updateLobbyState(game, cliendId);
+
+      const payload = {
+          "method": "play",
+          "game": game
+      }
+
+      console.log(game);
+
+      game.clients.forEach(c => { //Fix this
+        const clientId = c.clientId
+        const con = clients[clientId].connection;
+        con.send(JSON.stringify(payload));
+      })
     }
     // Send a response back to the client
     //ws.send(JSON.stringify({ response: `Server received: ${message}` }));

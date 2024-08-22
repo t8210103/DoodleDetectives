@@ -1,24 +1,37 @@
 // client/src/Main.js
 import React, { useState, useEffect } from 'react';
+import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
+import { useNavigate } from 'react-router-dom';
 
 function Main() {
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
+  const navigate = useNavigate();
 
   const [clientId, setClientId] = useState(null);
   const [gameId, setGameId] = useState(null);
+  const [numPlayers, setNumPlayers] = useState("");
+  const [showInput, setShowInput] = useState(false);
 
-  const createGame = () => {
+  const handleCreateGame = () => {
+    setShowInput(true); // Show the input field when the button is clicked
+  };
 
-    const payload = {
-      "method": "create",
-      "clientId": clientId,
-      //"numPlayers": players
+  const handleInputChangeOnCreate = (event) => {
+    setNumPlayers(event.target.value);
+  };
+
+  const handleKeyPressOnCreate = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const payload = {
+        method: "create",
+        clientId: clientId,
+        numPlayers: numPlayers
+      };
+      sendJsonMessage(payload);
     }
-
-    sendJsonMessage(payload);
-
-  }
+  };
 
   useEffect(() => {  //Basically the on.message
  
@@ -31,7 +44,6 @@ function Main() {
 
         if (response.method === "connect") {
           setClientId(response.clientId);
-          console.log("inside connect client method, clientId: " +  clientId);
         }
 
         if (response.games) {
@@ -57,7 +69,7 @@ function Main() {
             d.textContent = game.id;
             divPlayers.appendChild(d);
 
-            //inside button - join button
+            //inside join button
             const b = document.createElement("button");
             b.classList.add("joinButton");
             b.textContent = "Click to join game";
@@ -67,7 +79,7 @@ function Main() {
                     "clientId": clientId,
                     "game": game
                 }
-                // window.location.href = `gameLobby.html?payload=${encodeURIComponent(JSON.stringify(payload))}`;
+                navigate('/GameLobby', { state: { payload } });
 
             })
             d.appendChild(b)
@@ -75,42 +87,16 @@ function Main() {
           }
         }
       }
+      
+      if (response.method === "join") {
 
-      if (response.method === "create") {
-
-        console.log(response.game);
         const payload = {
-            "method": "join",
-            "clientId": response.clientId,
-            "game": response.game
-        }
+          "method": "join",
+          "game": response.game,
+          "clientId": response.clientId
+        };
 
-        /*const stringPayload = JSON.stringify(payload);
-        const myURL = new URL(`http://localhost:9090/gameLobby.html`);
-        myURL.searchParams.set("payload", stringPayload);
-        window.location.href = myURL.href;*/
-        
-        // Handle navigation to the game lobby
-        /*
-        function navigateToGameLobby(payload) {
-            const stringPayload = JSON.stringify(payload);
-
-            // Dynamically load the gameLobby content, avoiding full page reload
-            fetch(`/gameLobby.html`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('content').innerHTML = html;
-                    
-                    // Initialize gameLobby.js or inline script execution
-                    initGameLobby(stringPayload);  // You'd define this function to handle game lobby initialization
-                });
-
-            // Maintain WebSocket connection here or establish a new one in gameLobby
-        }
-            */
-
-
-        // window.location.href = `gameLobby.html?payload=${encodeURIComponent(JSON.stringify(payload))}`;  //Fix this so that objects go through - WORSE case recreate object with data (if absolutely necessary - bad solution)
+        navigate('/GameLobby', { state: { payload } });
       }
     }
   }, [lastJsonMessage]);
@@ -120,11 +106,26 @@ function Main() {
     <div>
       <h1>React Client</h1>
       <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
-      <button id = "btnCreate" onClick={() => createGame()} disabled={!connected}>
+
+      <button id = "createBtn" onClick={() => handleCreateGame()} disabled={!connected}>
         Create Game
       </button>
+      {/* Conditionally render the input field */}
+      {showInput && (
+        <div id="inputContainer">
+          <input
+            className="inputPlayers"
+            placeholder="How many players?"
+            value={numPlayers}
+            onChange={handleInputChangeOnCreate}
+            onKeyPress={handleKeyPressOnCreate}
+          />
+        </div>
+      )}
       <div id = "divPlayers"></div>
       <div id = "divBoard"></div>
+      <div>{"clientId:" + clientId}</div>
+
       <div>
         <h2>Last Message:</h2>
         <pre>{JSON.stringify(lastJsonMessage, null, 2)}</pre>

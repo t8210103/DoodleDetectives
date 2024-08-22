@@ -10,15 +10,13 @@ function guid() {
     return guid()
 }
 
-function updateAvailableGames(games, clientId, clients) {
+function updateAvailableGames(games, clientId, clients) { //interferes with GameLobby
 
     const payload = {
         "method": "allGames",
         "clientId": clientId,
         "games": games
     }
-
-
 
     for (const clientId in clients) {
         clients[clientId].connection.send(JSON.stringify(payload));
@@ -27,7 +25,7 @@ function updateAvailableGames(games, clientId, clients) {
     setTimeout(updateAvailableGames, 50)
 }
 
-function updateLobbyState(game, clientId) {
+function updateLobbyState(game, clientId) { //probably doesnt work
 
     const payload = {
         "method": "join",
