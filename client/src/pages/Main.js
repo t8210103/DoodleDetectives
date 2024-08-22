@@ -61,7 +61,7 @@ function Main() {
             divBoard.removeChild(divBoard.firstChild);
           }
 
-          for (const gameId in response.games) {
+          for (const gameId in response.games) { // IMPLEMENT useState for dynamic content
             game = response.games[gameId]; //each game
             //outside box
             const d = document.createElement("div");
@@ -76,7 +76,7 @@ function Main() {
             b.addEventListener("click", e => { //Click to join a game
                 const payload = {
                     "method": "join",
-                    "clientId": clientId,
+                    "clientId": response.clientId,
                     "game": game
                 }
                 navigate('/GameLobby', { state: { payload } });

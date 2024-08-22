@@ -21,8 +21,7 @@ function updateAvailableGames(games, clientId, clients) { //interferes with Game
     for (const clientId in clients) {
         clients[clientId].connection.send(JSON.stringify(payload));
     }
-
-    setTimeout(updateAvailableGames, 50)
+    
 }
 
 function updateLobbyState(game, clientId) { //probably doesnt work
