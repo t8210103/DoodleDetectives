@@ -13,6 +13,7 @@ function GameLobby() {
     const [clientId, setClientId] = useState(payload.clientId || null);
     const [game, setGame] = useState(payload.game);
     const [flag, setFlag] = useState(true); 
+    const [waitMessage, setWaitMessage] = useState();
 
     useEffect(() => {
 
@@ -27,9 +28,10 @@ function GameLobby() {
 
             const response = lastJsonMessage;
             
-            if (response.method === "play") {
+            if (response.method === "lobby") {
                 setGame(response.game);
-                waitPlayers.textContent = "Waiting for " + (response.game.numPlayers - response.game.clients.length) + " more players to join ..."
+                setWaitMessage(`Waiting for ${game.numPlayers - game.clients.length} more player(s) to join...`);
+                waitPlayers.textContent = waitMessage;
             }
 
         }

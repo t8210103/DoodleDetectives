@@ -75,7 +75,7 @@ wss.on('connection', (ws) => {
       //updateLobbyState(game, cliendId);
 
       const payload = {
-          "method": "play",
+          "method": "lobby",
           "game": game
       }
 

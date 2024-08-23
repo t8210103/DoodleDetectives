@@ -76,7 +76,7 @@ function Main() {
             b.addEventListener("click", e => { //Click to join a game
                 const payload = {
                     "method": "join",
-                    "clientId": response.clientId,
+                    "clientId": response.clientId, // OR "clientId": clientId,  --> check why it causes a problem (shouldn't it work since it is being set before???)
                     "game": game
                 }
                 navigate('/GameLobby', { state: { payload } });
