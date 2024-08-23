@@ -11,7 +11,7 @@ function GameLobby() {
     const { payload } = location.state || {}; // Fallback to an empty object if state is undefined
 
     const [clientId, setClientId] = useState(payload.clientId || null);
-    const [game, setGame] = useState(payload.game);
+    const [game, setGame] = useState(payload.games[payload.gameId]);
     const [flag, setFlag] = useState(true); 
     const [waitMessage, setWaitMessage] = useState();
 
@@ -29,7 +29,7 @@ function GameLobby() {
             const response = lastJsonMessage;
             
             if (response.method === "lobby") {
-                setGame(response.game);
+                setGame(response.games[response.gameId]);
                 setWaitMessage(`Waiting for ${game.numPlayers - game.clients.length} more player(s) to join...`);
                 waitPlayers.textContent = waitMessage;
             }

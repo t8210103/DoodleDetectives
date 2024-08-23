@@ -41,12 +41,13 @@ wss.on('connection', (ws) => {
           "id": gameId,
           "toDraw": "Cat", // Replace this with a random word generator function if needed
           "numPlayers": numPlayers,
-          "clients": []
-      };
+          "clients":[]
+      }; 
 
       const payload = {
           "method": "join",
-          "game": games[gameId],
+          "games": games,
+          "gameId": gameId,
           "clientId": clientId
       };
 
@@ -61,12 +62,13 @@ wss.on('connection', (ws) => {
       con.send(JSON.stringify(payload));
     }
 
-    if (result.method === "join") {  // Here make the game initiation logic??
+    if (result.method === "join") {
 
-      const game = result.game;
+      //const games = result.games; //This game is not properly updated before "join"
+      const gameId = result.gameId;
       const clientId = result.clientId;
 
-      game.clients.push({
+      games[gameId].clients.push({
           "clientId": clientId,
           //more specs
       })
@@ -76,14 +78,14 @@ wss.on('connection', (ws) => {
 
       const payload = {
           "method": "lobby",
-          "game": game
+          "games": games,
+          "gameId": gameId //maybe a proble for many games sending the gameId to all
       }
 
-      console.log(game);
+      console.log(games[gameId]);
 
-      game.clients.forEach(c => { //Fix this
-        const clientId = c.clientId
-        const con = clients[clientId].connection;
+      Object.values(clients).forEach(c => { // Must send to ALL clients the new GAMES !!!!
+        const con = c.connection;
         con.send(JSON.stringify(payload));
       })
     }

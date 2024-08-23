@@ -62,11 +62,11 @@ function Main() {
           }
 
           for (const gameId in response.games) { // IMPLEMENT useState for dynamic content
-            game = response.games[gameId]; //each game
+
             //outside box
             const d = document.createElement("div");
             d.classList.add("availableGames");
-            d.textContent = game.id;
+            d.textContent = response.games[gameId].id;
             divPlayers.appendChild(d);
 
             //inside join button
@@ -77,7 +77,8 @@ function Main() {
                 const payload = {
                     "method": "join",
                     "clientId": response.clientId, // OR "clientId": clientId,  --> check why it causes a problem (shouldn't it work since it is being set before???)
-                    "game": game
+                    "games": response.games,
+                    "gameId": gameId
                 }
                 navigate('/GameLobby', { state: { payload } });
 
@@ -88,11 +89,12 @@ function Main() {
         }
       }
       
-      if (response.method === "join") {
+      if (response.method === "join") { //Comes from server-create
 
         const payload = {
           "method": "join",
-          "game": response.game,
+          "games": response.games,
+          "gameId": response.gameId,
           "clientId": response.clientId
         };
 
