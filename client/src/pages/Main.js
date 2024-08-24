@@ -98,7 +98,7 @@ function Main() {
           "clientId": response.clientId
         };
 
-        navigate('/GameLobby', { state: { payload } });
+        navigate('/GameLobby', { state: { payload } });  // Check if navigate sends payload either way
       }
     }
   }, [lastJsonMessage]);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -12,14 +12,14 @@ function GameLobby() {
 
     const [clientId, setClientId] = useState(payload.clientId || null);
     const [game, setGame] = useState(payload.games[payload.gameId]);
-    const [flag, setFlag] = useState(true); 
+    const flagRef = useRef(true);
     const [waitMessage, setWaitMessage] = useState();
 
     useEffect(() => {
 
-        if (flag) {
+        if (flagRef.current) {
             sendJsonMessage(payload);
-            setFlag(!flag);
+            flagRef.current = false;
         }
 
         const waitPlayers = document.getElementById("waitPlayers");
@@ -29,19 +29,18 @@ function GameLobby() {
             const response = lastJsonMessage;
             
             if (response.method === "lobby") {
-                setGame(response.games[response.gameId]);
+                const game = response.games[response.gameId];
                 setWaitMessage(`Waiting for ${game.numPlayers - game.clients.length} more player(s) to join...`);
-                waitPlayers.textContent = waitMessage;
             }
 
         }
-    }, [lastJsonMessage]);
+    }, [lastJsonMessage, sendJsonMessage, payload]);
 
     return (
         <div>
             <h1>Game Lobby</h1>
             <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
-            <p id = "waitPlayers"></p>
+            <p id = "waitPlayers">{waitMessage}</p>
             {/*{response && game ? (
                 <div>
                     <p>Waiting for {response.game.numPlayers - response.game.clients.length} more players to join ...</p> 
