@@ -29,8 +29,14 @@ function GameLobby() {
             const response = lastJsonMessage;
             
             if (response.method === "lobby") {
+                
                 const game = response.games[response.gameId];
-                setWaitMessage(`Waiting for ${game.numPlayers - game.clients.length} more player(s) to join...`);
+
+                console.log(clientId);
+                if (game.clients.some(client => client.clientId === clientId)) {
+                    setWaitMessage(`Waiting for ${game.numPlayers - game.clients.length} more player(s) to join...`);
+                    setGame(game);
+                }
             }
 
         }
@@ -41,6 +47,8 @@ function GameLobby() {
             <h1>Game Lobby</h1>
             <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
             <p id = "waitPlayers">{waitMessage}</p>
+            <p id = "thisClient">ClientId: {clientId}</p>
+            <p>Game ID: {game.id}</p>
             {/*{response && game ? (
                 <div>
                     <p>Waiting for {response.game.numPlayers - response.game.clients.length} more players to join ...</p> 

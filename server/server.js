@@ -53,13 +53,13 @@ wss.on('connection', (ws) => {
 
       const con = clients[clientId].connection;
 
-      // Send the game creation payload to the client
-      con.send(JSON.stringify(payload));
-
       // Update available games for all clients
       if (Object.keys(games).length > 0) {
           updateAvailableGames(games, clientId, clients);
       }
+
+      // Send the game creation payload to the client
+      con.send(JSON.stringify(payload));
     }
 
     if (result.method === "join") {
