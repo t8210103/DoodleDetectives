@@ -79,7 +79,7 @@ wss.on('connection', (ws) => {
       const payload = {
           "method": "lobby",
           "games": games,
-          "gameId": gameId //maybe a proble for many games sending the gameId to all
+          "gameId": gameId //maybe a problem for many games sending the gameId to all
       }
 
       console.log(games[gameId]);

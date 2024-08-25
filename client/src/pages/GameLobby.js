@@ -28,7 +28,7 @@ function GameLobby() {
 
             const response = lastJsonMessage;
             
-            if (response.method === "lobby") {
+            if (response.method === "lobby" && response.gameId === payload.gameId) {
                 
                 const game = response.games[response.gameId];
 
