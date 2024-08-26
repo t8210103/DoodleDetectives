@@ -1,4 +1,4 @@
-const { guid, updateAvailableGames, updateLobbyState, visionAI } = require('./functions');
+const { guid, updateAvailableGames, updateLobbyState, visionAI } = require('../server/src/functions');
 
 //hashmaps
 const clients = {};
@@ -28,7 +28,6 @@ gameServer.listen(9090, () => console.log("Listening on http port 9090 - gameLob
 const wsServerMain = new WebSocketServer({
     httpServer: mainServer,
 });
-
 
 
 wsServerMain.on("request", request => {        //when each client first connects

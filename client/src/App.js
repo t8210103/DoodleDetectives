@@ -1,25 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'; // Import React
+import { BrowserRouter, Routes, Route } from 'react-router-dom'; // Import routing components
+import Main from './pages/Main.js'; // Import the Main component
+import GameLobby from './pages/GameLobby.js';
+import { WebSocketProvider } from './components/WebSocketContext.js';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// App.js is for defining the routes - all the different pages
+export default function App(){
+    return (
+      <>
+        <WebSocketProvider>
+          <BrowserRouter>
+            <Routes>
+                <Route index element = {<Main />} />  {/*this is the default page (no path)*/}
+                <Route path="/GameLobby" element = {<GameLobby />} />
+                {/*<Route path="/GamePage/" element = {<GamePage />} />
+                <Route path="*" element = {<NoPage />} />*/}
+            </Routes>
+          </BrowserRouter>
+        </WebSocketProvider>
+      </>
+    )
 }
-
-export default App;
