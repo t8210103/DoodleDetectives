@@ -8,7 +8,7 @@ function Main() {
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
   const navigate = useNavigate();
 
-  const [clientId, setClientId] = useState(null);
+  const [userData, setUserData] = useState({});
   const [gameId, setGameId] = useState(null);
   const [numPlayers, setNumPlayers] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -25,9 +25,9 @@ function Main() {
     if (event.key === "Enter") {
       event.preventDefault();
       const payload = {
-        method: "create",
-        clientId: clientId,
-        numPlayers: numPlayers
+        "method": "create",
+        "userData": userData,
+        "numPlayers": numPlayers
       };
       sendJsonMessage(payload);
     }
@@ -43,12 +43,10 @@ function Main() {
       if (response.method === "allGames" || response.method === "connect") {
 
         if (response.method === "connect") {
-          setClientId(response.clientId);
+          setUserData(response.userData);
         }
 
         if (response.games) {
-
-          console.log(response.games);
 
           while (divPlayers.firstChild) {
             divPlayers.removeChild(divPlayers.firstChild);
@@ -73,7 +71,7 @@ function Main() {
             b.addEventListener("click", e => { //Click to join a game
                 const payload = {
                     "method": "join",
-                    "clientId": clientId,
+                    "userData": userData,
                     "games": response.games,
                     "gameId": gameId
                 }
@@ -92,13 +90,13 @@ function Main() {
           "method": "join",
           "games": response.games,
           "gameId": response.gameId,
-          "clientId": response.clientId
+          "userData": response.userData
         };
 
         navigate('/GameLobby', { state: { payload } });  // Check if navigate sends payload either way
       }
     }
-  }, [lastJsonMessage, clientId]);
+  }, [lastJsonMessage, userData]);
 
 
   return (
@@ -123,7 +121,7 @@ function Main() {
       )}
       <div id = "divPlayers"></div>
       <div id = "divBoard"></div>
-      <div>{"clientId:" + clientId}</div>
+      <div>{"ClientId: " + userData.clientId}</div>
 
       <div>
         <h2>Last Message:</h2>

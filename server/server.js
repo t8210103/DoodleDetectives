@@ -8,19 +8,39 @@ const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({ port: 8000 });
 
+//random name generator - delete later
+function getRandomElement(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+function generateRandomName() {
+  const adjectives = ["Blue", "Fast", "Silent", "Bold", "Clever", "Bright"];
+  const nouns = ["Tiger", "Eagle", "Panther", "Wolf", "Falcon", "Lion"];
+  
+  const randomAdjective = getRandomElement(adjectives);
+  const randomNoun = getRandomElement(nouns);
+  const randomNumber = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
+
+  return `${randomAdjective}${randomNoun}${randomNumber}`;
+}
+
 wss.on('connection', (ws) => {
 
-  // Creating clientId
-  const clientId = guid();
-  console.log(`Client created with ID: ${clientId}`);
+  // Creating userData.clientId
+  const userData = {
+    "clientId": guid(),
+    "name": generateRandomName()
+  };
+  
+  console.log(`Client created with ID: ${userData.clientId}`);
 
-  clients[clientId] = {
+  clients[userData.clientId] = {
     "connection": ws
   };
 
   const payload = {
       "method": "connect",
-      "clientId": clientId,
+      "userData": userData,
       ...(Object.keys(games).length > 0 && { "games": games }) // Loads existing games
   };
 
@@ -34,7 +54,7 @@ wss.on('connection', (ws) => {
 
     if (result.method === "create") {
       const gameId = guid();
-      const clientId = result.clientId;
+      const userData = result.userData;
       const numPlayers = result.numPlayers;
 
       games[gameId] = {
@@ -48,14 +68,14 @@ wss.on('connection', (ws) => {
           "method": "join",
           "games": games,
           "gameId": gameId,
-          "clientId": clientId
+          "userData": userData
       };
 
-      const con = clients[clientId].connection;
+      const con = clients[userData.clientId].connection;
 
       // Update available games for all clients
       if (Object.keys(games).length > 0) {
-          updateAvailableGames(games, clientId, clients);
+          updateAvailableGames(games, userData.clientId, clients);
       }
 
       con.send(JSON.stringify(payload));
@@ -64,11 +84,10 @@ wss.on('connection', (ws) => {
     if (result.method === "join") {
 
       const gameId = result.gameId;
-      const clientId = result.clientId;
+      const userData = result.userData;
 
       games[gameId].clients.push({
-          "clientId": clientId,
-          //more specs
+          "userData": userData, //contains specs like name (get from database), surname (get from database), points (get from database) etc
       })
 
       // if (game.clients.length === 2) updateGameState();
@@ -97,7 +116,7 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     console.log('Connection closed');
-    delete clients[clientId];
+    delete clients[userData.clientId];
   });
 
 });
