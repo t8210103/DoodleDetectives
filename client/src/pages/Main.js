@@ -76,7 +76,7 @@ function Main() {
             b.addEventListener("click", e => { //Click to join a game
                 const payload = {
                     "method": "join",
-                    "clientId": response.clientId, // OR "clientId": clientId,  --> check why it causes a problem (shouldn't it work since it is being set before???)
+                    "clientId": clientId, // OR "clientId": clientId,  --> check why it causes a problem (shouldn't it work since it is being set before???)
                     "games": response.games,
                     "gameId": gameId
                 }
@@ -101,7 +101,7 @@ function Main() {
         navigate('/GameLobby', { state: { payload } });  // Check if navigate sends payload either way
       }
     }
-  }, [lastJsonMessage]);
+  }, [lastJsonMessage, clientId]);
 
 
   return (
