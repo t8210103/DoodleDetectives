@@ -48,10 +48,7 @@ function Main() {
 
         if (response.games) {
 
-          var game;
-
           console.log(response.games);
-          console.log("Hi");
 
           while (divPlayers.firstChild) {
             divPlayers.removeChild(divPlayers.firstChild);
@@ -61,7 +58,7 @@ function Main() {
             divBoard.removeChild(divBoard.firstChild);
           }
 
-          for (const gameId in response.games) { // IMPLEMENT useState for dynamic content
+          for (const gameId in response.games) {
 
             //outside box
             const d = document.createElement("div");
@@ -76,7 +73,7 @@ function Main() {
             b.addEventListener("click", e => { //Click to join a game
                 const payload = {
                     "method": "join",
-                    "clientId": clientId, // OR "clientId": clientId,  --> check why it causes a problem (shouldn't it work since it is being set before???)
+                    "clientId": clientId,
                     "games": response.games,
                     "gameId": gameId
                 }
@@ -89,7 +86,7 @@ function Main() {
         }
       }
       
-      if (response.method === "join") { //Comes from server-create
+      if (response.method === "join") {
 
         const payload = {
           "method": "join",

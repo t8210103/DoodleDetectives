@@ -8,7 +8,7 @@ function GameLobby() {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const { payload } = location.state || {}; // Fallback to an empty object if state is undefined
+    const { payload } = location.state || {};
 
     const [clientId, setClientId] = useState(payload.clientId || null);
     const [game, setGame] = useState(payload.games[payload.gameId]);
@@ -21,8 +21,6 @@ function GameLobby() {
             sendJsonMessage(payload);
             flagRef.current = false;
         }
-
-        const waitPlayers = document.getElementById("waitPlayers");
 
         if (lastJsonMessage != null) {
 
@@ -49,17 +47,7 @@ function GameLobby() {
             <p id = "waitPlayers">{waitMessage}</p>
             <p id = "thisClient">ClientId: {clientId}</p>
             <p>Game ID: {game.id}</p>
-            {/*{response && game ? (
-                <div>
-                    <p>Waiting for {response.game.numPlayers - response.game.clients.length} more players to join ...</p> 
-                    <p>Method: {response.method}</p>
-                    <p>Client ID: {clientId}</p>
-                    <p>Game ID: {response.game.id}</p>
-                    <p>Game Target: {response.game.toDraw}</p>
-                </div>
-            ) : (
-            <p>No payload received.</p>
-            )}*/}
+            <p>Game Target: {game.toDraw}</p>
         </div>
     );
 }

@@ -39,7 +39,7 @@ wss.on('connection', (ws) => {
 
       games[gameId] = {
           "id": gameId,
-          "toDraw": "Cat", // Replace this with a random word generator function if needed
+          "toDraw": "Cat", // Replace this with a random word generator function
           "numPlayers": numPlayers,
           "clients":[]
       }; 
@@ -58,13 +58,11 @@ wss.on('connection', (ws) => {
           updateAvailableGames(games, clientId, clients);
       }
 
-      // Send the game creation payload to the client
       con.send(JSON.stringify(payload));
     }
 
     if (result.method === "join") {
 
-      //const games = result.games; //This game is not properly updated before "join"
       const gameId = result.gameId;
       const clientId = result.clientId;
 
@@ -73,24 +71,28 @@ wss.on('connection', (ws) => {
           //more specs
       })
 
-      // if (game.clients.length === 2) updateGameState();  // Only work for 2 people online
+      // if (game.clients.length === 2) updateGameState();
       //updateLobbyState(game, cliendId);
 
       const payload = {
           "method": "lobby",
           "games": games,
-          "gameId": gameId //maybe a problem for many games sending the gameId to all
+          "gameId": gameId
       }
 
       console.log(games[gameId]);
 
-      Object.values(clients).forEach(c => { // Must send to ALL clients the new GAMES !!!!
+      /* 
+      -Send to all the clients the new games 
+      -Because at this point the user hasn't joined the game fully yet - so i can't send it only to the game cients
+      -Problem with sending the gameId to all clients
+      -Handling the problem with: " If (response.gameId === payload.gameId) " on GameLobby.js - that way other games ignore the new game information
+      */
+      Object.values(clients).forEach(c => { 
         const con = c.connection;
         con.send(JSON.stringify(payload));
       })
     }
-    // Send a response back to the client
-    //ws.send(JSON.stringify({ response: `Server received: ${message}` }));
   });
 
   ws.on('close', () => {
