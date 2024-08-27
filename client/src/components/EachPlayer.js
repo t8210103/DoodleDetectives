@@ -1,3 +1,5 @@
+
+// implements canva and user details
 const EachPlayer = ({ game, userData }) => {
 
     return (

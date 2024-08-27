@@ -31,12 +31,11 @@ function GameLobby() {
                 const game = response.games[response.gameId];
                 let pRemaining;
 
-                console.log(userData.clientId);
                 if (game.clients.some(client => client.userData.clientId === userData.clientId)) {
                     pRemaining = game.numPlayers - game.clients.length;
                     setWaitMessage(`Waiting for ${pRemaining} more player(s) to join...`);
                     setGame(game);
-                    if (pRemaining === 0) {
+                    if (pRemaining <= 0) {
                         
                         const payload = {
                             "method": "play",

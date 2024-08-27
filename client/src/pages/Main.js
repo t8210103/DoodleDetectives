@@ -102,6 +102,7 @@ function Main() {
   return (
     <div>
       <h1>React Client</h1>
+      <h4>Welcome { userData.name } </h4>
       <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
 
       <button id = "createBtn" onClick={() => handleCreateGame()} disabled={!connected}>
