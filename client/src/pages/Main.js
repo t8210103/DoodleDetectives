@@ -23,13 +23,17 @@ function Main() {
 
   const handleKeyPressOnCreate = (event) => {
     if (event.key === "Enter") {
-      event.preventDefault();
-      const payload = {
-        "method": "create",
-        "userData": userData,
-        "numPlayers": numPlayers
-      };
-      sendJsonMessage(payload);
+      if (!numPlayers || numPlayers <= 1) {
+        alert("Please enter a valid number of players.");
+      } else {
+        event.preventDefault();
+        const payload = {
+          "method": "create",
+          "userData": userData,
+          "numPlayers": numPlayers
+        };
+        sendJsonMessage(payload);
+      }
     }
   };
 
@@ -111,12 +115,12 @@ function Main() {
       {/* Conditionally render the input field */}
       {showInput && (
         <div id="inputContainer">
-          <input
+          <input required
             className="inputPlayers"
             placeholder="How many players?"
             value={numPlayers}
             onChange={handleInputChangeOnCreate}
-            onKeyPress={handleKeyPressOnCreate}
+            onKeyDown={handleKeyPressOnCreate}
           />
         </div>
       )}
