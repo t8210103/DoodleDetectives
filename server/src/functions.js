@@ -39,24 +39,20 @@ function updateLobbyState(game, clientId) { //probably doesnt work
 
 
 
-function visionAI(base64String) {
+async function visionAI(base64String) {
 
+    const vision = require("@google-cloud/vision");
     require('dotenv').config();
 
     const private_key_id = process.env.private_key_id;
     const private_key = process.env.private_key;
-
-    const vision = require("@google-cloud/vision");
-
-    const credentials = JSON.parse(JSON.stringify({
-        "private_key_id": private_key_id,
-        "private_key": private_key,
-    }));
+    const client_email = process.env.client_email;
 
     const config = {
         credentials: {
-            private_key: credentials.private_key,
-            client_email: credentials.client_email
+            "private_key": private_key,
+            "private_key_id": private_key_id,
+            "client_email": client_email
         }
     }
 
@@ -64,7 +60,7 @@ function visionAI(base64String) {
 
     async function detectProperties(base64String) {
         let descriptions = [];
-
+        
         try {
             const imageBuffer = Buffer.from(base64String, 'base64');
             const request = {
@@ -95,7 +91,7 @@ function visionAI(base64String) {
             }
 
             // Object descriptions
-            if (result.landmarkAnnotations) {
+            if (result.localizedObjectAnnotations) {
                 descriptions = descriptions.concat(result.localizedObjectAnnotations.map(annotation => annotation.name));
             }
             
@@ -119,8 +115,9 @@ function visionAI(base64String) {
         return descriptions;
     } */
 
-    const descriptions = async () => await detectProperties(base64String);
+    descriptions = await detectProperties(base64String);
 
+    console.log("Descriptions:" + descriptions)
     return descriptions;
     
 }

@@ -50,7 +50,8 @@ wss.on('connection', (ws) => {
 
   ws.on('message', (message) => {
     const result = JSON.parse(message);
-    console.log('Received message:', result);
+
+    //console.log('Received message:', result);
 
     if (result.method === "create") {
       const gameId = guid();
@@ -112,6 +113,28 @@ wss.on('connection', (ws) => {
         con.send(JSON.stringify(payload));
       })
     }
+
+    if (result.method === "checkAI") {
+
+      let found = false;
+      let game = result.game;
+      let descriptions = visionAI(result.base64String) //run checks here
+      console.log(typeof descriptions);
+
+      if (game.toDraw in descriptions) {
+        found = true;
+      }
+
+      const payload = {
+        "method": "resultAI",
+        "found": found
+      }
+
+      const con = clients[result.clientId].connection;
+      con.send(JSON.stringify(payload));
+
+    }
+
   });
 
   ws.on('close', () => {
