@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ReactSketchCanvas } from 'react-sketch-canvas';
-import { Eraser, Pen, Redo, Undo, RotateCcw, Save } from 'lucide-react'
+import { Eraser, Pen, Redo, Undo, RotateCcw } from 'lucide-react'
 import { useWebSocketContext } from './WebSocketContext.js';
 
 export default function Canvas({ canEdit, game, clientId }) {
@@ -9,8 +9,17 @@ export default function Canvas({ canEdit, game, clientId }) {
 
   const colorInputRef = useRef(null); // No need for HTMLInputElement typing
   const canvasRef = useRef(null); // No need for ReactSketchCanvasRef typing
+  const base64String = useRef(null)
   const [strokeColor, setStrokeColor] = useState('#203354');
   const [eraseMode, setEraseMode] = useState(false);
+  const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
+  let base64;
+    
+  if (client) {
+    base64 = client.userData.base64String;
+  }
+  
+  base64String.current = base64;
 
   const handleStrokeColorChange = (event) => {
     setStrokeColor(event.target.value); // Update the state with the new color
@@ -40,19 +49,44 @@ export default function Canvas({ canEdit, game, clientId }) {
   
   async function checkAI() {
 
-    const dataURL = await canvasRef.current?.exportImage('png') // dataURL is base64String
-    const base64String = dataURL.split(',')[1];
+    if (canvasRef.current) {
 
-    const payload = {
-      "method": "checkAI",
+      const dataURL = await canvasRef.current?.exportImage('png') // dataURL is base64String
+      const base64String = dataURL.split(',')[1];
+
+      const payload = {
+        "method": "checkAI",
+        "game": game,
+        "clientId": clientId,
+        "base64String": base64String
+      }
+
+      sendJsonMessage(payload);
+
+      return base64String;
+    }
+
+  }
+
+  async function updateDrawing() {
+
+    const dataURL = await canvasRef.current?.exportImage('png') // dataURL is base64String
+    
+    if (!dataURL) {
+      console.error("Failed to export image, dataURL is undefined.");
+      return;
+    }
+
+    base64String.current = dataURL.split(',')[1];
+
+    const payload = { //see if it works amesa
+      "method": "updateDrawing",
       "game": game,
       "clientId": clientId,
-      "base64String": base64String
+      "base64String": base64String.current
     }
 
     sendJsonMessage(payload);
-
-    return base64String;
   }
 
   useEffect(() => {
@@ -72,19 +106,27 @@ export default function Canvas({ canEdit, game, clientId }) {
       }
 
     }
-  }, [lastJsonMessage])
+
+    let imgElement = document.getElementById('base64Image');
+    imgElement.src = `data:image/png;base64,${base64String.current}`;
+    console.log(base64String)
+
+  }, [lastJsonMessage, game])
 
   return (
     <div className='mt-6 flex max-w-2xl gap-4'>
-      <ReactSketchCanvas
-        width='100%'
-        height='430px'
-        ref={canvasRef}
-        strokeColor={strokeColor}
-        canvasColor='transparent'
-        className='!rounded-2xl !border-purple-500 dark:!border-purple-800'
-      />
-
+      {/* player data / left side */}
+      {canEdit && (
+        <ReactSketchCanvas
+          width='100%'
+          height='430px'
+          ref={canvasRef}
+          strokeColor={strokeColor}
+          canvasColor='transparent'
+          className='!rounded-2xl !border-purple-500 dark:!border-purple-800'
+          onStroke={updateDrawing}
+        />
+      )}
         
       {canEdit && (
         <div className='flex flex-col items-center gap-y-6 divide-y'>
@@ -157,16 +199,26 @@ export default function Canvas({ canEdit, game, clientId }) {
             >
               <RotateCcw size={16}/>
             </button>
-
+            
+            {/* Can also be done with onStroke(), so on each stroke in checks - high API cost */}
             <button
-              size='icon'
+              size='16px'
               type='button'
               variant='outline'
               onClick={checkAI}
+              className='aiCheck-btn'
             >
-              <Save size={16}/>
+              AI check
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Opponent data / right side */}
+      {!canEdit && (
+        <div>
+          <h4>In Opp data:</h4>
+          <img id="base64Image" alt="Base64 Image" />
         </div>
       )}
     </div>  

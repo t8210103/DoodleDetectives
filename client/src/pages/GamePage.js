@@ -3,6 +3,8 @@ import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
 import EachPlayer from '../components/EachPlayer.js';
 import { useLocation, useNavigate } from 'react-router-dom';
+import _ from 'lodash';
+
 
 function GamePage() {
     const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
@@ -14,6 +16,7 @@ function GamePage() {
     const [game, setGame] = useState(payload.game || null);
     const oppDataList = game.clients.filter(client => client.userData.clientId !== userData.clientId);
     const iRef = useRef(0);
+    const flagRef = useRef(false);
     const [oppData, setOppData] = useState(oppDataList[iRef.current].userData ||null);
 
     const changeOpp = () => {
@@ -33,9 +36,14 @@ function GamePage() {
                 
             }
 
+            if (response.method === "updateOppDrawing" && !_.isEqual(game, response.game)) {
+                setGame(response.game);
+                flagRef.current = true;
+            }
+
         }
 
-    }, [lastJsonMessage, sendJsonMessage, payload, oppData])
+    }, [lastJsonMessage, game]);
 
     return (
         <>
@@ -45,11 +53,13 @@ function GamePage() {
                     <p>My data:</p>
                     <EachPlayer game={game} userData={userData} canEdit={true}/>
                 </div>
-                <div className='playerRight'>
-                    <p>Opponent data:</p>
-                    <EachPlayer game={game} userData={oppData} canEdit={false}/>
-                    <button id = "nextOpp" onClick={() => changeOpp()}>Next opponent</button>
-                </div>
+                { flagRef && (
+                    <div className='playerRight'>
+                        <p>Opponent data:</p>
+                        <EachPlayer game={game} userData={oppData} canEdit={false}/>
+                        <button id = "nextOpp" onClick={() => changeOpp()}>Next opponent</button>
+                    </div>
+                )}
             </div>
         </>
     );

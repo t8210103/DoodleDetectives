@@ -3,6 +3,7 @@ const { guid, updateAvailableGames, updateLobbyState, visionAI } = require('../s
 //hashmaps
 const clients = {};
 const games = {};
+let lastStroke = false;
 
 const WebSocket = require('ws');
 
@@ -29,7 +30,8 @@ wss.on('connection', (ws) => {
   // Creating userData.clientId
   const userData = {
     "clientId": guid(),
-    "name": generateRandomName()
+    "name": generateRandomName(),
+    "base64String": null
   };
   
   console.log(`Client created with ID: ${userData.clientId}`);
@@ -92,7 +94,7 @@ wss.on('connection', (ws) => {
       })
 
       // if (game.clients.length === 2) updateGameState();
-      //updateLobbyState(game, cliendId);
+      //updateLobbyState(game, clientId);
 
       const payload = {
           "method": "lobby",
@@ -132,7 +134,45 @@ wss.on('connection', (ws) => {
 
       const con = clients[result.clientId].connection;
       con.send(JSON.stringify(payload));
+    }
 
+    if (result.method === "updateDrawing") {
+
+      if (lastStroke) {
+        lastStroke = false
+        let game = result.game;
+        let clientId = result.clientId;
+        let base64 = result.base64String;
+
+        for (let client of game.clients) {
+          if (client.userData && client.userData.clientId === clientId) {
+            client.userData.base64String = base64;
+            break;
+          }
+        }
+
+        const payload = {
+          "method": "updateOppDrawing",
+          "game": game
+        }
+        
+        console.log("in here!!")
+
+        game.clients.forEach(client => { 
+          let clientId = client.userData.clientId
+
+          if (clientId  && clients[clientId] && clients[clientId].connection) {
+
+            const connection = clients[clientId].connection;
+            connection.send(JSON.stringify(payload));
+
+          }
+
+        })
+
+      } else {
+        lastStroke = true;
+      }
     }
 
   });

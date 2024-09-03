@@ -30,3 +30,7 @@
 .playerRight {
     margin-left: 20px; /* Space between left and right sides */
 }
+
+.aiCheck-btn {
+    font-size: 18px;
+}
