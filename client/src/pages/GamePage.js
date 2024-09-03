@@ -14,14 +14,13 @@ function GamePage() {
     const { payload } = location.state || {};
     const [userData, setUserData] = useState(payload.userData || null);
     const [game, setGame] = useState(payload.game || null);
-    const oppDataList = game.clients.filter(client => client.userData.clientId !== userData.clientId);
+    const oppDataList = game.clients.filter(client => client.userData.clientId !== userData.clientId); // All opponents userData list
     const iRef = useRef(0);
     const flagRef = useRef(false);
     const [oppData, setOppData] = useState(oppDataList[iRef.current].userData ||null);
 
     const changeOpp = () => {
         iRef.current = (iRef.current + 1) % (game.clients.length - 1);
-        console.log(iRef.current);
         setOppData(oppDataList[iRef.current].userData);
     }
     
@@ -30,7 +29,6 @@ function GamePage() {
         if (lastJsonMessage != null) {
 
             const response = lastJsonMessage;
-            // filter the game.clients (exclude the userData of client (my game) )
 
             if (payload.method === "play") { 
                 

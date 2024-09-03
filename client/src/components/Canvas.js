@@ -108,10 +108,11 @@ export default function Canvas({ canEdit, game, clientId }) {
     }
 
     let imgElement = document.getElementById('base64Image');
-    imgElement.src = `data:image/png;base64,${base64String.current}`;
-    console.log(base64String)
+    const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
+    imgElement.src = `data:image/png;base64,${client.userData.base64String}`;
+    //console.log(base64String)
 
-  }, [lastJsonMessage, game])
+  }, [lastJsonMessage, game, clientId])
 
   return (
     <div className='mt-6 flex max-w-2xl gap-4'>

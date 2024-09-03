@@ -90,7 +90,7 @@ wss.on('connection', (ws) => {
       const userData = result.userData;
 
       games[gameId].clients.push({
-          "userData": userData, //contains specs like name (get from database), surname (get from database), points (get from database) etc
+          "userData": userData //contains specs like name (get from database), surname (get from database), points (get from database) etc
       })
 
       // if (game.clients.length === 2) updateGameState();
@@ -155,8 +155,6 @@ wss.on('connection', (ws) => {
           "method": "updateOppDrawing",
           "game": game
         }
-        
-        console.log("in here!!")
 
         game.clients.forEach(client => { 
           let clientId = client.userData.clientId
