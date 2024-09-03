@@ -62,7 +62,7 @@ wss.on('connection', (ws) => {
 
       games[gameId] = {
           "id": gameId,
-          "toDraw": "Cat", // Replace this with a random word generator function
+          "toDraw": "Handwriting", // Replace this with a random word generator function
           "numPlayers": numPlayers,
           "clients":[]
       }; 
@@ -94,8 +94,6 @@ wss.on('connection', (ws) => {
       })
 
       // if (game.clients.length === 2) updateGameState();
-      //updateLobbyState(game, clientId);
-
       const payload = {
           "method": "lobby",
           "games": games,
@@ -120,20 +118,22 @@ wss.on('connection', (ws) => {
 
       let found = false;
       let game = result.game;
-      let descriptions = visionAI(result.base64String) //run checks here
-      console.log(typeof descriptions);
 
-      if (game.toDraw in descriptions) {
-        found = true;
-      }
-
-      const payload = {
-        "method": "resultAI",
-        "found": found
-      }
-
-      const con = clients[result.clientId].connection;
-      con.send(JSON.stringify(payload));
+      visionAI(result.base64String).then( descriptions => {
+  
+        if (descriptions.includes(game.toDraw)) {
+          found = true;
+        }
+  
+        const payload = {
+          "method": "resultAI",
+          "found": found
+        }
+  
+        const con = clients[result.clientId].connection;
+        con.send(JSON.stringify(payload));
+        
+      })
     }
 
     if (result.method === "updateDrawing") {

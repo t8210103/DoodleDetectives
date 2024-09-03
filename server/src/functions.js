@@ -117,7 +117,6 @@ async function visionAI(base64String) {
 
     descriptions = await detectProperties(base64String);
 
-    console.log("Descriptions:" + descriptions)
     return descriptions;
     
 }
