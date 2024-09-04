@@ -11,3 +11,26 @@
     width: 200px;
     height: 30px;
 }
+
+.playerContainer {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px; /* Optional padding around the container */
+}
+
+.playerLeft,
+.playerRight {
+    flex: 1; /* Each side takes up equal space */
+}
+
+.playerLeft {
+    margin-right: 20px; /* Space between left and right sides */
+}
+
+.playerRight {
+    margin-left: 20px; /* Space between left and right sides */
+}
+
+.aiCheck-btn {
+    font-size: 18px;
+}

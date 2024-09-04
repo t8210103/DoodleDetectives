@@ -10,7 +10,7 @@ function GameLobby() {
     const location = useLocation();
     const { payload } = location.state || {};
 
-    const [clientId, setClientId] = useState(payload.clientId || null);
+    const [userData, setUserData] = useState(payload.userData || null);
     const [game, setGame] = useState(payload.games[payload.gameId]);
     const flagRef = useRef(true);
     const [waitMessage, setWaitMessage] = useState();
@@ -29,11 +29,22 @@ function GameLobby() {
             if (response.method === "lobby" && response.gameId === payload.gameId) {
                 
                 const game = response.games[response.gameId];
+                let pRemaining;
 
-                console.log(clientId);
-                if (game.clients.some(client => client.clientId === clientId)) {
-                    setWaitMessage(`Waiting for ${game.numPlayers - game.clients.length} more player(s) to join...`);
+                if (game.clients.some(client => client.userData.clientId === userData.clientId)) {
+                    pRemaining = game.numPlayers - game.clients.length;
+                    setWaitMessage(`Waiting for ${pRemaining} more player(s) to join...`);
                     setGame(game);
+                    if (pRemaining <= 0) {
+                        
+                        const payload = {
+                            "method": "play",
+                            "game": game,
+                            "userData": userData
+                        }
+
+                        navigate('/GamePage', { state: { payload } });
+                    }
                 }
             }
 
@@ -45,7 +56,7 @@ function GameLobby() {
             <h1>Game Lobby</h1>
             <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
             <p id = "waitPlayers">{waitMessage}</p>
-            <p id = "thisClient">ClientId: {clientId}</p>
+            <p id = "thisClient">ClientId: {userData.clientId}</p>
             <p>Game ID: {game.id}</p>
             <p>Game Target: {game.toDraw}</p>
         </div>

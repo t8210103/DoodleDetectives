@@ -8,7 +8,7 @@ function Main() {
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
   const navigate = useNavigate();
 
-  const [clientId, setClientId] = useState(null);
+  const [userData, setUserData] = useState({});
   const [gameId, setGameId] = useState(null);
   const [numPlayers, setNumPlayers] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -23,13 +23,17 @@ function Main() {
 
   const handleKeyPressOnCreate = (event) => {
     if (event.key === "Enter") {
-      event.preventDefault();
-      const payload = {
-        method: "create",
-        clientId: clientId,
-        numPlayers: numPlayers
-      };
-      sendJsonMessage(payload);
+      if (!numPlayers || numPlayers <= 1) {
+        alert("Please enter a valid number of players.");
+      } else {
+        event.preventDefault();
+        const payload = {
+          "method": "create",
+          "userData": userData,
+          "numPlayers": numPlayers
+        };
+        sendJsonMessage(payload);
+      }
     }
   };
 
@@ -43,12 +47,10 @@ function Main() {
       if (response.method === "allGames" || response.method === "connect") {
 
         if (response.method === "connect") {
-          setClientId(response.clientId);
+          setUserData(response.userData);
         }
 
         if (response.games) {
-
-          console.log(response.games);
 
           while (divPlayers.firstChild) {
             divPlayers.removeChild(divPlayers.firstChild);
@@ -73,7 +75,7 @@ function Main() {
             b.addEventListener("click", e => { //Click to join a game
                 const payload = {
                     "method": "join",
-                    "clientId": clientId,
+                    "userData": userData,
                     "games": response.games,
                     "gameId": gameId
                 }
@@ -92,18 +94,19 @@ function Main() {
           "method": "join",
           "games": response.games,
           "gameId": response.gameId,
-          "clientId": response.clientId
+          "userData": response.userData
         };
 
         navigate('/GameLobby', { state: { payload } });  // Check if navigate sends payload either way
       }
     }
-  }, [lastJsonMessage, clientId]);
+  }, [lastJsonMessage, userData]);
 
 
   return (
     <div>
       <h1>React Client</h1>
+      <h4>Welcome { userData.name } </h4>
       <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
 
       <button id = "createBtn" onClick={() => handleCreateGame()} disabled={!connected}>
@@ -112,18 +115,18 @@ function Main() {
       {/* Conditionally render the input field */}
       {showInput && (
         <div id="inputContainer">
-          <input
+          <input required
             className="inputPlayers"
             placeholder="How many players?"
             value={numPlayers}
             onChange={handleInputChangeOnCreate}
-            onKeyPress={handleKeyPressOnCreate}
+            onKeyDown={handleKeyPressOnCreate}
           />
         </div>
       )}
       <div id = "divPlayers"></div>
       <div id = "divBoard"></div>
-      <div>{"clientId:" + clientId}</div>
+      <div>{"ClientId: " + userData.clientId}</div>
 
       <div>
         <h2>Last Message:</h2>
