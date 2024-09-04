@@ -46,6 +46,10 @@ export default function Canvas({ canEdit, game, clientId }) {
   const handleClearClick = () => {
     canvasRef.current?.clearCanvas();
   }
+
+  const whiteImage = (event)  => {
+    event.target.src = '/images/solidWhite.png';
+  }
   
   async function checkAI() {
 
@@ -219,7 +223,7 @@ export default function Canvas({ canEdit, game, clientId }) {
       {!canEdit && (
         <div>
           <h4>In Opp data:</h4>
-          <img id="base64Image" alt="Base64 Image" />
+          <img id="base64Image" alt="Opponents drawing" onError={whiteImage}/>
         </div>
       )}
     </div>  
