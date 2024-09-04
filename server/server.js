@@ -1,4 +1,4 @@
-const { guid, updateAvailableGames, updateLobbyState, visionAI } = require('../server/src/functions');
+const { guid, updateAvailableGames, updateLobbyState, visionAI, getRandomPrompt } = require('../server/src/functions');
 
 //hashmaps
 const clients = {};
@@ -30,7 +30,7 @@ wss.on('connection', (ws) => {
   // Creating userData.clientId
   const userData = {
     "clientId": guid(),
-    "name": generateRandomName(),
+    "name": getRandomPrompt(),
     "base64String": null
   };
   
@@ -59,13 +59,16 @@ wss.on('connection', (ws) => {
       const gameId = guid();
       const userData = result.userData;
       const numPlayers = result.numPlayers;
+      const difficulty = result.difficulty;
+      const randomWord = getRandomPrompt(difficulty);
 
       games[gameId] = {
           "id": gameId,
-          "toDraw": "Handwriting", // Replace this with a random word generator function
+          "toDraw": randomWord, // easy or Mmedium
           "numPlayers": numPlayers,
+          "difficulty": difficulty,
           "clients":[]
-      }; 
+      };
 
       const payload = {
           "method": "join",

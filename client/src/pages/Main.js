@@ -12,6 +12,7 @@ function Main() {
   const [gameId, setGameId] = useState(null);
   const [numPlayers, setNumPlayers] = useState("");
   const [showInput, setShowInput] = useState(false);
+  const [showDifficulty, setShowDifficulty] = useState(false);
 
   const handleCreateGame = () => {
     setShowInput(true); // Show the input field when the button is clicked
@@ -21,21 +22,33 @@ function Main() {
     setNumPlayers(event.target.value);
   };
 
+  // Choose players for game
   const handleKeyPressOnCreate = (event) => {
     if (event.key === "Enter") {
-      if (!numPlayers || numPlayers <= 1) {
-        alert("Please enter a valid number of players.");
+      if (!numPlayers || numPlayers <= 1 || numPlayers >= 11) {
+        alert("Please enter a valid number of players. From 2-10");
       } else {
-        event.preventDefault();
-        const payload = {
-          "method": "create",
-          "userData": userData,
-          "numPlayers": numPlayers
-        };
-        sendJsonMessage(payload);
+        setShowDifficulty(true);
       }
     }
   };
+
+  // Choose game difficulty
+  const handleDiffClick = (event) => {
+
+    const difficulty = event.target.getAttribute('data-value');
+    event.preventDefault();
+
+    const payload = {
+      "method": "create",
+      "userData": userData,
+      "numPlayers": numPlayers,
+      "difficulty": difficulty
+    };
+
+    sendJsonMessage(payload);
+    
+  } 
 
   useEffect(() => {  //Basically the on.message
  
@@ -62,10 +75,12 @@ function Main() {
 
           for (const gameId in response.games) {
 
+            const game = response.games[gameId];
+            
             //outside box
             const d = document.createElement("div");
             d.classList.add("availableGames");
-            d.textContent = response.games[gameId].id;
+            d.textContent = "Players:" + game.numPlayers + "\n Difficulty:" + game.difficulty + "\n GameId:" + game.id;
             divPlayers.appendChild(d);
 
             //inside join button
@@ -116,14 +131,26 @@ function Main() {
       {showInput && (
         <div id="inputContainer">
           <input required
-            className="inputPlayers"
+            className="input-players"
             placeholder="How many players?"
             value={numPlayers}
+            type='number'
             onChange={handleInputChangeOnCreate}
             onKeyDown={handleKeyPressOnCreate}
           />
+        </div>    
+      )}
+      {showDifficulty && (
+        <div class="diff-drop-down">
+          <button class="diff-btn">Choose difficulty</button>
+          <div class="diff-dropdown-content">
+            <p data-value="easy" onClick={handleDiffClick}>Easy</p>
+            <p data-value="medium" onClick={handleDiffClick}>Medium</p>
+            <p data-value="hard" onClick={handleDiffClick}>Hard</p>
+          </div>
         </div>
       )}
+
       <div id = "divPlayers"></div>
       <div id = "divBoard"></div>
       <div>{"ClientId: " + userData.clientId}</div>

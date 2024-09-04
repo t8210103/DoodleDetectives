@@ -12,6 +12,7 @@
     height: 30px;
 }
 
+/* Game Page*/
 .playerContainer {
     display: flex;
     justify-content: space-between;
@@ -33,4 +34,73 @@
 
 .aiCheck-btn {
     font-size: 18px;
+}
+
+/* Input desired game players */
+.input-players {
+    width: 200px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+/* Difficulty drop down menu*/
+.diff-btn {
+    background-color: #a1a1a1;
+    color: black;
+    padding: 10px 80px 10px 10px;
+    margin: 10px 0px 10px 0px;
+    font-size: 16px;
+    border: none;
+}
+
+.diff-drop-down {
+    position: relative;
+    display: inline-block;
+}
+
+.diff-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.diff-dropdown-content p {
+    color: black;
+    padding: 4px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.diff-dropdown-content p:hover {
+    background-color: #ddd;
+}
+
+.diff-drop-down:hover .diff-dropdown-content {
+    display: block;
+}
+  
+.diff-drop-down:hover .diff-btn {
+    background-color: #7d7978;
+}
+
+
+
+/* Hide arrows for WebKit browsers (Chrome, Safari) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide arrows for Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Hide arrows for Edge and IE */
+input[type="number"] {
+  appearance: textfield;
 }
