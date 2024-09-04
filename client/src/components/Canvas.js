@@ -108,10 +108,17 @@ export default function Canvas({ canEdit, game, clientId }) {
 
         if (response.found) {
           console.log("You won");
-          
-        } else {
-          console.log("Keep trying");
           setShowModal(true);
+        } else {
+          let divElement = document.getElementById('notWin');
+          divElement.textContent = "Keep trying...";
+          divElement.style.display = 'flex';
+
+          setTimeout(() => {
+            divElement.textContent = "";
+            divElement.style.display = 'none';
+          }, 2000);
+
         }
 
       }
@@ -143,6 +150,11 @@ export default function Canvas({ canEdit, game, clientId }) {
       {canEdit && (
         <div className='flex flex-col items-center gap-y-6 divide-y'>
           
+          <div class="not-win-container">
+              <p id="notWin" class="not-win">Keep trying...</p>
+          </div>
+
+
           {/* color picker */}
           <button
             size='icon'
@@ -161,7 +173,7 @@ export default function Canvas({ canEdit, game, clientId }) {
               onChange={handleStrokeColorChange} // Update color on change
             />
           </button>
-          
+
           {/* drawing mode */}
           <div className='flex felx-col gap-3 pt-6'>
           <button

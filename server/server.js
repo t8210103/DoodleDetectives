@@ -123,7 +123,7 @@ wss.on('connection', (ws) => {
       let game = result.game;
 
       visionAI(result.base64String).then( descriptions => {
-  
+        console.log(descriptions);
         if (descriptions.includes(game.toDraw)) {
           found = true;
         }
