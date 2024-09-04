@@ -124,7 +124,7 @@ function Main() {
       <h4>Welcome { userData.name } </h4>
       <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
 
-      <button id = "createBtn" onClick={() => handleCreateGame()} disabled={!connected}>
+      <button id="createBtn" className='createBtn' onClick={() => handleCreateGame()} disabled={!connected}>
         Create Game
       </button>
       {/* Conditionally render the input field */}

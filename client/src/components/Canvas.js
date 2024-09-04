@@ -12,6 +12,7 @@ export default function Canvas({ canEdit, game, clientId }) {
   const base64String = useRef(null)
   const [strokeColor, setStrokeColor] = useState('#203354');
   const [eraseMode, setEraseMode] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
   let base64;
     
@@ -50,6 +51,10 @@ export default function Canvas({ canEdit, game, clientId }) {
   const whiteImage = (event)  => {
     event.target.src = '/images/solidWhite.png';
   }
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
   
   async function checkAI() {
 
@@ -103,8 +108,10 @@ export default function Canvas({ canEdit, game, clientId }) {
 
         if (response.found) {
           console.log("You won");
+          
         } else {
           console.log("Keep trying");
+          setShowModal(true);
         }
 
       }
@@ -226,6 +233,17 @@ export default function Canvas({ canEdit, game, clientId }) {
           <img id="base64Image" alt="Opponents drawing" onError={whiteImage}/>
         </div>
       )}
-    </div>  
+
+      {/* Modal - Pop up window for winning*/}
+      {showModal && (
+        <div className="modal-backdrop" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Congratulations</h2>
+            <p>You Won!</p>
+            <button className='modal-close-btn' onClick={handleCloseModal}>Close</button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
