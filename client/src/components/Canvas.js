@@ -157,7 +157,7 @@ export default function Canvas({ canEdit, game, userData }) {
       }
 
       if (response.method === "playerLost") {
-        setWinnerData(response.winnerData)
+        setWinnerData(response.winnerData);
         setEndGame(true);
       }
 
@@ -167,7 +167,7 @@ export default function Canvas({ canEdit, game, userData }) {
     const client = game.clients.find(client => client.userData && client.userData.clientId === userData.clientId);
     imgElement.src = `data:image/png;base64,${client.userData.base64String}`;
 
-  }, [lastJsonMessage, game, userData.clientId])
+  }, [lastJsonMessage, game, userData])
 
   return (
     <div className='mt-6 flex max-w-2xl gap-4'>

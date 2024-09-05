@@ -115,6 +115,12 @@ wss.on('connection', (ws) => {
         const con = c.connection;
         con.send(JSON.stringify(payload));
       })
+
+      if (JSON.stringify(games[gameId].clients.length) === games[gameId].numPlayers) {
+        delete games[gameId];
+        updateAvailableGames(games, userData.clientId, clients);
+      }
+
     }
 
     if (result.method === "getAllGames") {
@@ -194,7 +200,7 @@ wss.on('connection', (ws) => {
 
       const payload = {
         "method": "playerLost",
-        "winnerData": winnerData // To show who thw winner was
+        "winnerData": winnerData // To show who the winner was
       }
 
       for (let client of game.clients) {

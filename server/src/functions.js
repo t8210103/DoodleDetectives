@@ -24,21 +24,6 @@ function updateAvailableGames(games, clientId, clients) { //interferes with Game
     
 }
 
-function updateLobbyState(game, clientId) { //probably doesnt work
-
-    const payload = {
-        "method": "join",
-        "clientId": clientId,
-        "game": game
-    }
-
-    clients[clientId].connection.send(JSON.stringify(payload));
-
-    setTimeout(updateLobbyState, 50)
-}
-
-
-
 async function visionAI(base64String) {
 
     const vision = require("@google-cloud/vision");
@@ -152,4 +137,4 @@ function getRandomPrompt(category) {
   }
 
 
-module.exports = { visionAI, guid, updateAvailableGames, updateLobbyState, getRandomPrompt };
+module.exports = { visionAI, guid, updateAvailableGames, getRandomPrompt };
