@@ -30,7 +30,7 @@ wss.on('connection', (ws) => {
   // Creating userData.clientId
   const userData = {
     "clientId": guid(),
-    "name": getRandomPrompt(),
+    "name": generateRandomName(),
     "base64String": null
   };
   
@@ -115,6 +115,18 @@ wss.on('connection', (ws) => {
         const con = c.connection;
         con.send(JSON.stringify(payload));
       })
+    }
+
+    if (result.method === "getAllGames") {
+
+      const payload = {
+        "method": "allGames",
+        "clientId": result.clientId,
+        "games": games
+      }
+
+      const con = clients[result.clientId].connection;
+      con.send(JSON.stringify(payload));
     }
 
     if (result.method === "checkAI") {

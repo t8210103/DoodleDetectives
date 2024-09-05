@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ReactSketchCanvas } from 'react-sketch-canvas';
 import { Eraser, Pen, Redo, Undo, RotateCcw } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
 import { useWebSocketContext } from './WebSocketContext.js';
 
 export default function Canvas({ canEdit, game, clientId }) {
 
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
+  const navigate = useNavigate();
 
   const colorInputRef = useRef(null); // No need for HTMLInputElement typing
   const canvasRef = useRef(null); // No need for ReactSketchCanvasRef typing
@@ -53,7 +55,23 @@ export default function Canvas({ canEdit, game, clientId }) {
   }
 
   const handleCloseModal = () => {
+
     setShowModal(false);
+    
+    const payload = { // In order to update wins in database
+      "method": "newWin",
+      "clientId": clientId
+    }
+
+    sendJsonMessage(payload);   
+
+    const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
+    let userData = client.userData;
+
+    console.log("ClientId before navigate:" + userData.clientId);
+    userData.base64String = null;
+    navigate('/', { state: { userData } });
+
   };
   
   async function checkAI() {
@@ -79,7 +97,7 @@ export default function Canvas({ canEdit, game, clientId }) {
 
   async function updateDrawing() {
 
-    const dataURL = await canvasRef.current?.exportImage('png') // dataURL is base64String
+    const dataURL = await canvasRef.current?.exportImage('png')
     
     if (!dataURL) {
       console.error("Failed to export image, dataURL is undefined.");
@@ -88,7 +106,7 @@ export default function Canvas({ canEdit, game, clientId }) {
 
     base64String.current = dataURL.split(',')[1];
 
-    const payload = { //see if it works amesa
+    const payload = {
       "method": "updateDrawing",
       "game": game,
       "clientId": clientId,
@@ -104,16 +122,20 @@ export default function Canvas({ canEdit, game, clientId }) {
 
       const response = lastJsonMessage;
 
-      if (response.method === "resultAI") {
+      if (response.method === "resultAI" && canEdit) {
 
-        if (response.found) {
+        if (!response.found) {  // Remove the "!", after testing
+
           console.log("You won");
           setShowModal(true);
+
         } else {
+
           let divElement = document.getElementById('notWin');
           divElement.textContent = "Keep trying...";
           divElement.style.display = 'flex';
 
+          // show for 2 sec
           setTimeout(() => {
             divElement.textContent = "";
             divElement.style.display = 'none';
@@ -128,7 +150,6 @@ export default function Canvas({ canEdit, game, clientId }) {
     let imgElement = document.getElementById('base64Image');
     const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
     imgElement.src = `data:image/png;base64,${client.userData.base64String}`;
-    //console.log(base64String)
 
   }, [lastJsonMessage, game, clientId])
 
@@ -150,8 +171,8 @@ export default function Canvas({ canEdit, game, clientId }) {
       {canEdit && (
         <div className='flex flex-col items-center gap-y-6 divide-y'>
           
-          <div class="not-win-container">
-              <p id="notWin" class="not-win">Keep trying...</p>
+          <div className="not-win-container">
+              <p id="notWin" className="not-win">Keep trying...</p>
           </div>
 
 
@@ -256,6 +277,7 @@ export default function Canvas({ canEdit, game, clientId }) {
           </div>
         </div>
       )}
+
     </div>
   );
 }

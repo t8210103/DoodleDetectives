@@ -2,16 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
 import EachPlayer from '../components/EachPlayer.js';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
 
 
 function GamePage() {
     const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
 
-    const navigate = useNavigate();
     const location = useLocation();
-    const { payload } = location.state || {};
+    let { payload } = location.state || {};
+
     const [userData, setUserData] = useState(payload.userData || null);
     const [game, setGame] = useState(payload.game || null);
     const oppDataList = game.clients.filter(client => client.userData.clientId !== userData.clientId); // All opponents userData list

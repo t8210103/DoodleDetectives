@@ -2,17 +2,35 @@
 import React, { useState, useEffect } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 function Main() {
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [userData, setUserData] = useState({});
   const [gameId, setGameId] = useState(null);
   const [numPlayers, setNumPlayers] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showDifficulty, setShowDifficulty] = useState(false);
+
+  // When user redirects from a finished game
+  useEffect(() => {
+    const { userData: oldUserData } = location.state || {};
+  
+    if (oldUserData) {
+      setUserData(oldUserData);
+      console.log("oldUserData:", oldUserData);
+
+      const payload = {
+        "method": "getAllGames",
+        "clientId": oldUserData.clientId
+      }
+
+      sendJsonMessage(payload);
+    }
+  }, []);
 
   const handleCreateGame = () => {
     setShowInput(true); // Show the input field when the button is clicked
@@ -50,14 +68,14 @@ function Main() {
     
   } 
 
-  useEffect(() => {  //Basically the on.message
+  useEffect(() => {
  
     const divPlayers = document.getElementById("divPlayers");
     const divBoard = document.getElementById("divBoard");
     if (lastJsonMessage != null) {
       const response = lastJsonMessage;
 
-      if (response.method === "allGames" || response.method === "connect") {
+      if (response.method === "allGames" || response.method === "connect") { // allGames comes from functions
 
         if (response.method === "connect") {
           setUserData(response.userData);
