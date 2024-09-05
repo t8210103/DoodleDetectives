@@ -4,7 +4,7 @@ import { Eraser, Pen, Redo, Undo, RotateCcw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
 import { useWebSocketContext } from './WebSocketContext.js';
 
-export default function Canvas({ canEdit, game, clientId }) {
+export default function Canvas({ canEdit, game, userData }) {
 
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
   const navigate = useNavigate();
@@ -15,7 +15,9 @@ export default function Canvas({ canEdit, game, clientId }) {
   const [strokeColor, setStrokeColor] = useState('#203354');
   const [eraseMode, setEraseMode] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
+  const [endGame, setEndGame] = useState(false);
+  const [winnerData, setWinnerData] = useState(null);
+  const client = game.clients.find(client => client.userData && client.userData.clientId === userData.clientId);
   let base64;
     
   if (client) {
@@ -54,25 +56,34 @@ export default function Canvas({ canEdit, game, clientId }) {
     event.target.src = '/images/solidWhite.png';
   }
 
-  const handleCloseModal = () => {
+  const handleCloseWinModal = () => {
 
     setShowModal(false);
-    
-    const payload = { // In order to update wins in database
-      "method": "newWin",
-      "clientId": clientId
-    }
 
-    sendJsonMessage(payload);   
-
-    const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
-    let userData = client.userData;
-
-    console.log("ClientId before navigate:" + userData.clientId);
     userData.base64String = null;
     navigate('/', { state: { userData } });
 
   };
+
+  const handleCloseLoseModal = () => {
+
+    setEndGame(false);
+
+    userData.base64String = null;
+    navigate('/', { state: { userData } });
+
+  };
+
+  const declareWinner = () => {
+
+    const payload = { // In order to update wins in database AND send all other players that they lost
+      "method": "newWin",
+      "game": game,
+      "userData": userData // winners data
+    }
+
+    sendJsonMessage(payload);   
+  }
   
   async function checkAI() {
 
@@ -84,7 +95,7 @@ export default function Canvas({ canEdit, game, clientId }) {
       const payload = {
         "method": "checkAI",
         "game": game,
-        "clientId": clientId,
+        "clientId": userData.clientId,
         "base64String": base64String
       }
 
@@ -109,7 +120,7 @@ export default function Canvas({ canEdit, game, clientId }) {
     const payload = {
       "method": "updateDrawing",
       "game": game,
-      "clientId": clientId,
+      "clientId": userData.clientId,
       "base64String": base64String.current
     }
 
@@ -126,8 +137,8 @@ export default function Canvas({ canEdit, game, clientId }) {
 
         if (!response.found) {  // Remove the "!", after testing
 
-          console.log("You won");
           setShowModal(true);
+          declareWinner();
 
         } else {
 
@@ -145,13 +156,18 @@ export default function Canvas({ canEdit, game, clientId }) {
 
       }
 
+      if (response.method === "playerLost") {
+        setWinnerData(response.winnerData)
+        setEndGame(true);
+      }
+
     }
 
     let imgElement = document.getElementById('base64Image');
-    const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
+    const client = game.clients.find(client => client.userData && client.userData.clientId === userData.clientId);
     imgElement.src = `data:image/png;base64,${client.userData.base64String}`;
 
-  }, [lastJsonMessage, game, clientId])
+  }, [lastJsonMessage, game, userData.clientId])
 
   return (
     <div className='mt-6 flex max-w-2xl gap-4'>
@@ -269,11 +285,21 @@ export default function Canvas({ canEdit, game, clientId }) {
 
       {/* Modal - Pop up window for winning*/}
       {showModal && (
-        <div className="modal-backdrop" onClick={handleCloseModal}>
+        <div className="modal-backdrop" onClick={handleCloseWinModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>Congratulations</h2>
             <p>You Won!</p>
-            <button className='modal-close-btn' onClick={handleCloseModal}>Close</button>
+            <button className='modal-close-btn' onClick={handleCloseWinModal}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {endGame && (
+        <div className="modal-backdrop" onClick={handleCloseLoseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>You Lost!</h2>
+            <p>{winnerData.name} won!</p>
+            <button className='modal-close-btn' onClick={handleCloseLoseModal}>Close</button>
           </div>
         </div>
       )}

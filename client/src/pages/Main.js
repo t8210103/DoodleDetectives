@@ -30,6 +30,7 @@ function Main() {
 
       sendJsonMessage(payload);
     }
+    
   }, []);
 
   const handleCreateGame = () => {

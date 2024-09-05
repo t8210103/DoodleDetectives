@@ -188,6 +188,30 @@ wss.on('connection', (ws) => {
       }
     }
 
+    if (result.method === "newWin") {
+      const winnerData = result.userData;
+      const game = result.game;
+
+      const payload = {
+        "method": "playerLost",
+        "winnerData": winnerData // To show who thw winner was
+      }
+
+      for (let client of game.clients) {
+
+        // Send payload to players that lost
+        if (client.userData && client.userData.clientId != winnerData.clientId) {
+
+          //client.userData.base64String = null; --> is done on server side
+          const connection = clients[client.userData.clientId].connection;
+          connection.send(JSON.stringify(payload));
+
+        }
+
+      }
+
+    }
+
   });
 
   ws.on('close', () => {
