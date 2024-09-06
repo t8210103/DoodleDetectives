@@ -134,7 +134,7 @@ function Main() {
         navigate('/GameLobby', { state: { payload } });  // Check if navigate sends payload either way
       }
     }
-  }, [lastJsonMessage, userData]);
+  }, [lastJsonMessage, userData, gameId]);
 
 
   return (

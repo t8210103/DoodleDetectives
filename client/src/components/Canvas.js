@@ -156,7 +156,7 @@ export default function Canvas({ canEdit, game, userData }) {
 
       }
 
-      if (response.method === "playerLost") {
+      if (response.method === "playerLost" && canEdit) {
         setWinnerData(response.winnerData);
         setEndGame(true);
       }
