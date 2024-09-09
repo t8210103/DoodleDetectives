@@ -103,6 +103,8 @@ wss.on('connection', (ws) => {
           "gameId": gameId
       }
 
+      updateAvailableGames(games, userData.clientId, clients)
+
       console.log(games[gameId]);
 
       /* 

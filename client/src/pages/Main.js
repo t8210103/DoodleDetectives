@@ -95,12 +95,32 @@ function Main() {
           for (const gameId in response.games) {
 
             const game = response.games[gameId];
-            
-            //outside box
+
+            // Create outer game container
             const d = document.createElement("div");
             d.classList.add("availableGames");
-            d.textContent = "Players:" + game.numPlayers + "\n Difficulty:" + game.difficulty + "\n GameId:" + game.id;
-            divPlayers.appendChild(d);
+        
+            // Game information container
+            const infoContainer = document.createElement("div");
+            infoContainer.classList.add("gameInfo");
+        
+            const players = document.createElement("p");
+            players.textContent = "Total players: " + game.numPlayers;
+            infoContainer.appendChild(players);
+        
+            const difficulty = document.createElement("p");
+            difficulty.textContent = "Difficulty: " + game.difficulty;
+            infoContainer.appendChild(difficulty);
+        
+            /*const gameIdText = document.createElement("p");
+            gameIdText.textContent = "Game ID: " + game.id;
+            infoContainer.appendChild(gameIdText);*/
+
+            const playersLeft = document.createElement("p");
+            playersLeft.textContent = "Players Left: " + (game.numPlayers - game.clients.length);
+            infoContainer.appendChild(playersLeft);
+        
+            d.appendChild(infoContainer);
 
             //inside join button
             const b = document.createElement("button");
@@ -116,7 +136,7 @@ function Main() {
                 navigate('/GameLobby', { state: { payload } });
 
             })
-            d.appendChild(b)
+            d.appendChild(b);
             divPlayers.appendChild(d);
           }
         }
@@ -149,7 +169,8 @@ function Main() {
       {/* Conditionally render the input field */}
       {showInput && (
         <div id="inputContainer">
-          <input required
+          <input 
+            required
             className="input-players"
             placeholder="How many players?"
             value={numPlayers}
@@ -172,11 +193,14 @@ function Main() {
 
       <div id = "divPlayers"></div>
       <div id = "divBoard"></div>
-      <div>{"ClientId: " + userData.clientId}</div>
 
       <div>
         <h2>Last Message:</h2>
         <pre>{JSON.stringify(lastJsonMessage, null, 2)}</pre>
+      </div>
+      <div>
+        <h2>Client Id:</h2>
+        <pre>{userData.clientId}</pre>
       </div>
     </div>
   );
