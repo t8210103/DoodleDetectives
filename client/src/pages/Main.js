@@ -1,5 +1,5 @@
 // client/src/Main.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -67,7 +67,7 @@ function Main() {
 
     sendJsonMessage(payload);
     
-  } 
+  }
 
   useEffect(() => {
  
@@ -181,9 +181,11 @@ function Main() {
         </div>    
       )}
       {showDifficulty && (
-        <div class="diff-drop-down">
-          <button class="diff-btn">Choose difficulty</button>
-          <div class="diff-dropdown-content">
+        <div className="diff-drop-down">
+          <button className="diff-btn">
+            Choose difficulty
+          </button>
+          <div className="diff-dropdown-content">
             <p data-value="easy" onClick={handleDiffClick}>Easy</p>
             <p data-value="medium" onClick={handleDiffClick}>Medium</p>
             <p data-value="hard" onClick={handleDiffClick}>Hard</p>

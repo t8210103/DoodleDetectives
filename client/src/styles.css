@@ -98,7 +98,7 @@
 }
 
 .diff-btn {
-    padding: 12px 80px 10px 10px;
+    padding: 12px 50px 10px 50px;
     font-size: 16px;
     font-weight: bold;
     color: white;
@@ -110,20 +110,19 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* .diff-btn:hover {
+diff-btn:hover {
     background-color: #0056b3;
     transform: translateY(-2px);
-} */
+}
 
 .diff-dropdown-content {
     display: none;
     position: absolute;
     background-color: #f9f9f9;
-    min-width: 160px;
+    min-width: 220px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     z-index: 1;
-    margin-top: 10px;
 }
 
 .diff-drop-down:hover .diff-dropdown-content {
