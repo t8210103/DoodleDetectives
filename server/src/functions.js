@@ -24,21 +24,6 @@ function updateAvailableGames(games, clientId, clients) { //interferes with Game
     
 }
 
-function updateLobbyState(game, clientId) { //probably doesnt work
-
-    const payload = {
-        "method": "join",
-        "clientId": clientId,
-        "game": game
-    }
-
-    clients[clientId].connection.send(JSON.stringify(payload));
-
-    setTimeout(updateLobbyState, 50)
-}
-
-
-
 async function visionAI(base64String) {
 
     const vision = require("@google-cloud/vision");
@@ -121,5 +106,35 @@ async function visionAI(base64String) {
     
 }
 
+function getRandomPrompt(category) {
 
-module.exports = { visionAI, guid, updateAvailableGames, updateLobbyState };
+    const drawingPrompts = {
+        easy: [
+            'Apple', 'Balloon', 'Cat', 'Dog', 'Flower', 'House', 'Ice Cream', 
+            'Kite', 'Sun', 'Tree', 'Umbrella', 'Whale', 'Airplane', 
+            'Bicycle', 'Camera'
+        ],
+        medium: [
+            'Elephant', 'Giraffe', 'Jellyfish', 'Lion', 'Mountain', 'Owl', 
+            'Pineapple', 'Rainbow', 'Violin', 'Zebra', 'Dolphin', 
+            'Frog', 'Guitar', 'Island', 'Kangaroo', 'Lighthouse', 'Mushroom', 
+            'Octopus', 'Robot', 'Turtle', 'Unicorn', 'Volcano', 'Waterfall', 
+            'Yacht', 'Zipper'
+        ],
+        hard: [
+            'Astronaut', 'Buddha', 'Castle', 'Dragon', 'Mandala', 'Labyrinth', 
+            'Lighthouse', 'Oceanside', 'Pharaoh', 'Coral', 'Tribal', 'Alien', 
+            'Anatomy', 'Gothic', 'Cityscape', 'Airship', 'Galaxy', 'Skyscraper', 
+            'Haunted', 'Waterfall', 'Ruins', 'Viking','Mansion', 'Jungle', 'Underwater', 
+            'Ruin', 'Meditation', 'Solar', 'Astronomy', 'Telescope', 'Meteor', 'Dragonfly'
+        ]
+    };
+    if (category) {
+        const prompts = drawingPrompts[category];
+        const randomIndex = Math.floor(Math.random() * prompts.length);
+        return prompts[randomIndex];
+    }
+  }
+
+
+module.exports = { visionAI, guid, updateAvailableGames, getRandomPrompt };

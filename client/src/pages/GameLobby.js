@@ -56,6 +56,8 @@ function GameLobby() {
             <h1>Game Lobby</h1>
             <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
             <p id = "waitPlayers">{waitMessage}</p>
+            <p>Difficulty: {game.difficulty}</p>
+            <p>To draw: {game.toDraw}</p>
             <p id = "thisClient">ClientId: {userData.clientId}</p>
             <p>Game ID: {game.id}</p>
             <p>Game Target: {game.toDraw}</p>

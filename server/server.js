@@ -1,4 +1,4 @@
-const { guid, updateAvailableGames, updateLobbyState, visionAI } = require('../server/src/functions');
+const { guid, updateAvailableGames, updateLobbyState, visionAI, getRandomPrompt } = require('../server/src/functions');
 
 //hashmaps
 const clients = {};
@@ -59,13 +59,16 @@ wss.on('connection', (ws) => {
       const gameId = guid();
       const userData = result.userData;
       const numPlayers = result.numPlayers;
+      const difficulty = result.difficulty;
+      const randomWord = getRandomPrompt(difficulty);
 
       games[gameId] = {
           "id": gameId,
-          "toDraw": "Handwriting", // Replace this with a random word generator function
+          "toDraw": randomWord, // easy or Mmedium
           "numPlayers": numPlayers,
+          "difficulty": difficulty,
           "clients":[]
-      }; 
+      };
 
       const payload = {
           "method": "join",
@@ -100,6 +103,8 @@ wss.on('connection', (ws) => {
           "gameId": gameId
       }
 
+      updateAvailableGames(games, userData.clientId, clients)
+
       console.log(games[gameId]);
 
       /* 
@@ -112,6 +117,24 @@ wss.on('connection', (ws) => {
         const con = c.connection;
         con.send(JSON.stringify(payload));
       })
+
+      if (JSON.stringify(games[gameId].clients.length) === games[gameId].numPlayers) {
+        delete games[gameId];
+        updateAvailableGames(games, userData.clientId, clients);
+      }
+
+    }
+
+    if (result.method === "getAllGames") {
+
+      const payload = {
+        "method": "allGames",
+        "clientId": result.clientId,
+        "games": games
+      }
+
+      const con = clients[result.clientId].connection;
+      con.send(JSON.stringify(payload));
     }
 
     if (result.method === "checkAI") {
@@ -120,7 +143,7 @@ wss.on('connection', (ws) => {
       let game = result.game;
 
       visionAI(result.base64String).then( descriptions => {
-  
+        console.log(descriptions);
         if (descriptions.includes(game.toDraw)) {
           found = true;
         }
@@ -171,6 +194,30 @@ wss.on('connection', (ws) => {
       } else {
         lastStroke = true;
       }
+    }
+
+    if (result.method === "newWin") {
+      const winnerData = result.userData;
+      const game = result.game;
+
+      const payload = {
+        "method": "playerLost",
+        "winnerData": winnerData // To show who the winner was
+      }
+
+      for (let client of game.clients) {
+
+        // Send payload to players that lost
+        if (client.userData && client.userData.clientId != winnerData.clientId) {
+
+          //client.userData.base64String = null; --> is done on server side
+          const connection = clients[client.userData.clientId].connection;
+          connection.send(JSON.stringify(payload));
+
+        }
+
+      }
+
     }
 
   });

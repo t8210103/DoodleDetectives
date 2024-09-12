@@ -1,18 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ReactSketchCanvas } from 'react-sketch-canvas';
 import { Eraser, Pen, Redo, Undo, RotateCcw } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
 import { useWebSocketContext } from './WebSocketContext.js';
 
-export default function Canvas({ canEdit, game, clientId }) {
+export default function Canvas({ canEdit, game, userData }) {
 
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
+  const navigate = useNavigate();
 
   const colorInputRef = useRef(null); // No need for HTMLInputElement typing
   const canvasRef = useRef(null); // No need for ReactSketchCanvasRef typing
   const base64String = useRef(null)
   const [strokeColor, setStrokeColor] = useState('#203354');
   const [eraseMode, setEraseMode] = useState(false);
-  const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
+  const [showModal, setShowModal] = useState(false);
+  const [endGame, setEndGame] = useState(false);
+  const [winnerData, setWinnerData] = useState(null);
+  const client = game.clients.find(client => client.userData && client.userData.clientId === userData.clientId);
   let base64;
     
   if (client) {
@@ -50,6 +55,35 @@ export default function Canvas({ canEdit, game, clientId }) {
   const whiteImage = (event)  => {
     event.target.src = '/images/solidWhite.png';
   }
+
+  const handleCloseWinModal = () => {
+
+    setShowModal(false);
+
+    userData.base64String = null;
+    navigate('/', { state: { userData } });
+
+  };
+
+  const handleCloseLoseModal = () => {
+
+    setEndGame(false);
+
+    userData.base64String = null;
+    navigate('/', { state: { userData } });
+
+  };
+
+  const declareWinner = () => {
+
+    const payload = { // In order to update wins in database AND send all other players that they lost
+      "method": "newWin",
+      "game": game,
+      "userData": userData // winners data
+    }
+
+    sendJsonMessage(payload);   
+  }
   
   async function checkAI() {
 
@@ -61,7 +95,7 @@ export default function Canvas({ canEdit, game, clientId }) {
       const payload = {
         "method": "checkAI",
         "game": game,
-        "clientId": clientId,
+        "clientId": userData.clientId,
         "base64String": base64String
       }
 
@@ -74,7 +108,7 @@ export default function Canvas({ canEdit, game, clientId }) {
 
   async function updateDrawing() {
 
-    const dataURL = await canvasRef.current?.exportImage('png') // dataURL is base64String
+    const dataURL = await canvasRef.current?.exportImage('png')
     
     if (!dataURL) {
       console.error("Failed to export image, dataURL is undefined.");
@@ -83,10 +117,10 @@ export default function Canvas({ canEdit, game, clientId }) {
 
     base64String.current = dataURL.split(',')[1];
 
-    const payload = { //see if it works amesa
+    const payload = {
       "method": "updateDrawing",
       "game": game,
-      "clientId": clientId,
+      "clientId": userData.clientId,
       "base64String": base64String.current
     }
 
@@ -99,24 +133,41 @@ export default function Canvas({ canEdit, game, clientId }) {
 
       const response = lastJsonMessage;
 
-      if (response.method === "resultAI") {
+      if (response.method === "resultAI" && canEdit) {
 
-        if (response.found) {
-          console.log("You won");
+        if (!response.found) {  // Remove the "!", after testing
+
+          setShowModal(true);
+          declareWinner();
+
         } else {
-          console.log("Keep trying");
+
+          let divElement = document.getElementById('notWin');
+          divElement.textContent = "Keep trying...";
+          divElement.style.display = 'flex';
+
+          // show for 2 sec
+          setTimeout(() => {
+            divElement.textContent = "";
+            divElement.style.display = 'none';
+          }, 2000);
+
         }
 
+      }
+
+      if (response.method === "playerLost" && canEdit) {
+        setWinnerData(response.winnerData);
+        setEndGame(true);
       }
 
     }
 
     let imgElement = document.getElementById('base64Image');
-    const client = game.clients.find(client => client.userData && client.userData.clientId === clientId);
+    const client = game.clients.find(client => client.userData && client.userData.clientId === userData.clientId);
     imgElement.src = `data:image/png;base64,${client.userData.base64String}`;
-    //console.log(base64String)
 
-  }, [lastJsonMessage, game, clientId])
+  }, [lastJsonMessage, game, userData])
 
   return (
     <div className='mt-6 flex max-w-2xl gap-4'>
@@ -136,6 +187,11 @@ export default function Canvas({ canEdit, game, clientId }) {
       {canEdit && (
         <div className='flex flex-col items-center gap-y-6 divide-y'>
           
+          <div className="not-win-container">
+              <p id="notWin" className="not-win">Keep trying...</p>
+          </div>
+
+
           {/* color picker */}
           <button
             size='icon'
@@ -154,7 +210,7 @@ export default function Canvas({ canEdit, game, clientId }) {
               onChange={handleStrokeColorChange} // Update color on change
             />
           </button>
-          
+
           {/* drawing mode */}
           <div className='flex felx-col gap-3 pt-6'>
           <button
@@ -226,6 +282,28 @@ export default function Canvas({ canEdit, game, clientId }) {
           <img id="base64Image" alt="Opponents drawing" onError={whiteImage}/>
         </div>
       )}
-    </div>  
+
+      {/* Modal - Pop up window for winning*/}
+      {showModal && (
+        <div className="modal-backdrop" onClick={handleCloseWinModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Congratulations</h2>
+            <p>You Won!</p>
+            <button className='modal-close-btn' onClick={handleCloseWinModal}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {endGame && (
+        <div className="modal-backdrop" onClick={handleCloseLoseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>You Lost!</h2>
+            <p>{winnerData.name} won!</p>
+            <button className='modal-close-btn' onClick={handleCloseLoseModal}>Close</button>
+          </div>
+        </div>
+      )}
+
+    </div>
   );
 }

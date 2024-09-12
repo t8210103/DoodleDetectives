@@ -1,17 +1,37 @@
 // client/src/Main.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 function Main() {
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [userData, setUserData] = useState({});
   const [gameId, setGameId] = useState(null);
   const [numPlayers, setNumPlayers] = useState("");
   const [showInput, setShowInput] = useState(false);
+  const [showDifficulty, setShowDifficulty] = useState(false);
+
+  // When user redirects from a finished game
+  useEffect(() => {
+    const { userData: oldUserData } = location.state || {};
+  
+    if (oldUserData) {
+      setUserData(oldUserData);
+      console.log("oldUserData:", oldUserData);
+
+      const payload = {
+        "method": "getAllGames",
+        "clientId": oldUserData.clientId
+      }
+
+      sendJsonMessage(payload);
+    }
+    
+  }, []);
 
   const handleCreateGame = () => {
     setShowInput(true); // Show the input field when the button is clicked
@@ -21,30 +41,42 @@ function Main() {
     setNumPlayers(event.target.value);
   };
 
+  // Choose players for game
   const handleKeyPressOnCreate = (event) => {
     if (event.key === "Enter") {
-      if (!numPlayers || numPlayers <= 1) {
-        alert("Please enter a valid number of players.");
+      if (!numPlayers || numPlayers <= 1 || numPlayers >= 11) {
+        alert("Please enter a valid number of players. From 2-10");
       } else {
-        event.preventDefault();
-        const payload = {
-          "method": "create",
-          "userData": userData,
-          "numPlayers": numPlayers
-        };
-        sendJsonMessage(payload);
+        setShowDifficulty(true);
       }
     }
   };
 
-  useEffect(() => {  //Basically the on.message
+  // Choose game difficulty
+  const handleDiffClick = (event) => {
+
+    const difficulty = event.target.getAttribute('data-value');
+    event.preventDefault();
+
+    const payload = {
+      "method": "create",
+      "userData": userData,
+      "numPlayers": numPlayers,
+      "difficulty": difficulty
+    };
+
+    sendJsonMessage(payload);
+    
+  }
+
+  useEffect(() => {
  
     const divPlayers = document.getElementById("divPlayers");
     const divBoard = document.getElementById("divBoard");
     if (lastJsonMessage != null) {
       const response = lastJsonMessage;
 
-      if (response.method === "allGames" || response.method === "connect") {
+      if (response.method === "allGames" || response.method === "connect") { // allGames comes from functions
 
         if (response.method === "connect") {
           setUserData(response.userData);
@@ -62,11 +94,33 @@ function Main() {
 
           for (const gameId in response.games) {
 
-            //outside box
+            const game = response.games[gameId];
+
+            // Create outer game container
             const d = document.createElement("div");
             d.classList.add("availableGames");
-            d.textContent = response.games[gameId].id;
-            divPlayers.appendChild(d);
+        
+            // Game information container
+            const infoContainer = document.createElement("div");
+            infoContainer.classList.add("gameInfo");
+        
+            const players = document.createElement("p");
+            players.textContent = "Total players: " + game.numPlayers;
+            infoContainer.appendChild(players);
+        
+            const difficulty = document.createElement("p");
+            difficulty.textContent = "Difficulty: " + game.difficulty;
+            infoContainer.appendChild(difficulty);
+        
+            /*const gameIdText = document.createElement("p");
+            gameIdText.textContent = "Game ID: " + game.id;
+            infoContainer.appendChild(gameIdText);*/
+
+            const playersLeft = document.createElement("p");
+            playersLeft.textContent = "Players Left: " + (game.numPlayers - game.clients.length);
+            infoContainer.appendChild(playersLeft);
+        
+            d.appendChild(infoContainer);
 
             //inside join button
             const b = document.createElement("button");
@@ -82,7 +136,7 @@ function Main() {
                 navigate('/GameLobby', { state: { payload } });
 
             })
-            d.appendChild(b)
+            d.appendChild(b);
             divPlayers.appendChild(d);
           }
         }
@@ -100,7 +154,7 @@ function Main() {
         navigate('/GameLobby', { state: { payload } });  // Check if navigate sends payload either way
       }
     }
-  }, [lastJsonMessage, userData]);
+  }, [lastJsonMessage, userData, gameId]);
 
 
   return (
@@ -109,28 +163,46 @@ function Main() {
       <h4>Welcome { userData.name } </h4>
       <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
 
-      <button id = "createBtn" onClick={() => handleCreateGame()} disabled={!connected}>
+      <button id="createBtn" className='createBtn' onClick={() => handleCreateGame()} disabled={!connected}>
         Create Game
       </button>
       {/* Conditionally render the input field */}
       {showInput && (
         <div id="inputContainer">
-          <input required
-            className="inputPlayers"
+          <input 
+            required
+            className="input-players"
             placeholder="How many players?"
             value={numPlayers}
+            type='number'
             onChange={handleInputChangeOnCreate}
             onKeyDown={handleKeyPressOnCreate}
           />
+        </div>    
+      )}
+      {showDifficulty && (
+        <div className="diff-drop-down">
+          <button className="diff-btn">
+            Choose difficulty
+          </button>
+          <div className="diff-dropdown-content">
+            <p data-value="easy" onClick={handleDiffClick}>Easy</p>
+            <p data-value="medium" onClick={handleDiffClick}>Medium</p>
+            <p data-value="hard" onClick={handleDiffClick}>Hard</p>
+          </div>
         </div>
       )}
+
       <div id = "divPlayers"></div>
       <div id = "divBoard"></div>
-      <div>{"ClientId: " + userData.clientId}</div>
 
       <div>
         <h2>Last Message:</h2>
         <pre>{JSON.stringify(lastJsonMessage, null, 2)}</pre>
+      </div>
+      <div>
+        <h2>Client Id:</h2>
+        <pre>{userData.clientId}</pre>
       </div>
     </div>
   );

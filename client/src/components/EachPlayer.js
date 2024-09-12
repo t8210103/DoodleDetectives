@@ -8,7 +8,8 @@ const EachPlayer = ({ game, userData, canEdit }) => {
         <div>
             <p> GameId: {game.id} </p>
             <p> ClientId: {userData.clientId} </p>
-            <Canvas canEdit={ canEdit } game={ game } clientId={ userData.clientId } />
+            <p> Client Name: {userData.name} </p>
+            <Canvas canEdit={ canEdit } game={ game } userData={ userData } />
         </div>
     );
 }
