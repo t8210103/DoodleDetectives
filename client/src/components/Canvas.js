@@ -135,7 +135,7 @@ export default function Canvas({ canEdit, game, userData }) {
 
       if (response.method === "resultAI" && canEdit) {
 
-        if (!response.found) {  // Remove the "!", after testing
+        if (response.found) {  // Add a "!" for testing
 
           setShowModal(true);
           declareWinner();
