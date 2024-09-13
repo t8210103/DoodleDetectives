@@ -15,6 +15,21 @@ function GameLobby() {
     const flagRef = useRef(true);
     const [waitMessage, setWaitMessage] = useState();
 
+    // Handle user going back with arrows
+    useEffect(() => {
+
+        const handlePopState = () => {
+            navigate('/', { replace: true, state: { userData } });
+        };
+
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+
+    }, [navigate, location]);
+
     useEffect(() => {
 
         if (flagRef.current) {
