@@ -26,22 +26,22 @@ function updateAvailableGames(games, clientId, clients) { //interferes with Game
 
 async function visionAI(base64String) {
 
-    const vision = require("@google-cloud/vision");
     require('dotenv').config();
+    const vision = require("@google-cloud/vision");
 
-    const private_key_id = process.env.private_key_id;
-    const private_key = process.env.private_key;
-    const client_email = process.env.client_email;
+    // const private_key_id = process.env.private_key_id;
+    // const private_key = process.env.private_key;
+    // const client_email = process.env.client_email;
 
-    const config = {
-        credentials: {
-            "private_key": private_key,
-            "private_key_id": private_key_id,
-            "client_email": client_email
-        }
-    }
+    // const config = {
+    //     CFV: {
+    //         "private_key": private_key,
+    //         "private_key_id": private_key_id,
+    //         "client_email": client_email
+    //     }
+    // }
 
-    const client = new vision.ImageAnnotatorClient(config);
+    const client = new vision.ImageAnnotatorClient();
 
     async function detectProperties(base64String) {
         let descriptions = [];
