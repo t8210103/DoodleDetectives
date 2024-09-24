@@ -6,8 +6,34 @@ const games = {};
 let lastStroke = false;
 
 const WebSocket = require('ws');
+const http = require('http');
+const express = require('express');
+const path = require('path');
 
-const wss = new WebSocket.Server({ port: 8000 });
+const app = express();
+const httpServer = http.createServer(app);
+
+// Create a WebSocket server attached to the HTTPS server
+const wss = new WebSocket.Server({ server: httpServer });
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+// Define your API routes
+app.get('/api/some-endpoint', (req, res) => {
+    res.json({ message: "Hello from the API!" });
+});
+
+// Serve React app for all other requests
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+// Start the HTTP server
+httpServer.listen(3001, '127.0.0.1', () => {
+  console.log('HTTP and WebSocket server running on port 3001');
+});
+
 
 //random name generator - delete later
 function getRandomElement(array) {
@@ -133,6 +159,17 @@ wss.on('connection', (ws) => {
         "games": games
       }
 
+      // if (!clients[result.clientId]) {
+      //   const ws = new WebSocket('ws://localhost:3000');
+
+      //   clients[userData.clientId] = {
+      //     "connection": ws
+      //   };
+
+      //   clients 
+
+      // }
+
       const con = clients[result.clientId].connection;
       con.send(JSON.stringify(payload));
     }
@@ -229,4 +266,4 @@ wss.on('connection', (ws) => {
 
 });
 
-console.log('WebSocket server running on ws://localhost:8000');
+console.log('WebSocket server is running on port 3002');

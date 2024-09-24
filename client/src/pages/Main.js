@@ -30,6 +30,22 @@ function Main() {
 
       sendJsonMessage(payload);
     }
+
+    if (!oldUserData && lastJsonMessage === null) {
+      
+      const storedUserData = localStorage.getItem('userData');
+
+      if (storedUserData) {
+        setUserData(storedUserData);
+
+        const payload = {
+          "method": "getAllGames",
+          "clientId": storedUserData.clientId
+        }
+
+        sendJsonMessage(payload);
+      }
+    }
     
   }, []);
 
@@ -80,6 +96,7 @@ function Main() {
 
         if (response.method === "connect") {
           setUserData(response.userData);
+          localStorage.setItem('userData', JSON.stringify(response.userData))
         }
 
         if (response.games) {

@@ -29,3 +29,6 @@ npm-debug.log*
 # IDE directories
 .idea/
 .vscode/
+
+# notes
+notes.txt
