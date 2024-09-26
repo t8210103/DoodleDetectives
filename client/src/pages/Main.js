@@ -15,8 +15,10 @@ function Main() {
   const [showInput, setShowInput] = useState(false);
   const [showDifficulty, setShowDifficulty] = useState(false);
 
-  // When user redirects from a finished game
+  
   useEffect(() => {
+
+    // When user redirects from a finished game
     const { userData: oldUserData } = location.state || {};
   
     if (oldUserData) {
@@ -25,27 +27,28 @@ function Main() {
 
       const payload = {
         "method": "getAllGames",
-        "clientId": oldUserData.clientId
+        "clientId": oldUserData.clientId,
       }
 
       sendJsonMessage(payload);
     }
 
-    if (!oldUserData && lastJsonMessage === null) {
+    // if (!oldUserData && lastJsonMessage === null) {
       
-      const storedUserData = localStorage.getItem('userData');
+    //   const storedUserData = localStorage.getItem('userData');
 
-      if (storedUserData) {
-        setUserData(storedUserData);
+    //   if (storedUserData) {
+    //     setUserData(storedUserData);
 
-        const payload = {
-          "method": "getAllGames",
-          "clientId": storedUserData.clientId
-        }
+    //     const payload = {
+    //       "method": "getAllGames",
+    //       "clientId": storedUserData.clientId;
+    //       "fromGame": true
+    //     }
 
-        sendJsonMessage(payload);
-      }
-    }
+    //     sendJsonMessage(payload);
+    //   }
+    // }
     
   }, []);
 

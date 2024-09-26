@@ -19,7 +19,6 @@ export default function App(){
                 <Route element={<ProtectedRoutes/>}>
                   <Route path="/GameLobby" element = {<GameLobby />} />
                 </Route>
-
                 <Route path="/GamePage/" element = {<GamePage />} />
                 <Route path="*" element = {<NoPage />} />
             </Routes>

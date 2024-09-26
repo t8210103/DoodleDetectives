@@ -12,6 +12,7 @@ export const WebSocketProvider = ({ children }) => {
     //queryParams: { username: 'myUsername' },
     onOpen: () => setConnected(true),
     onClose: () => setConnected(false),
+    onError: (event) => console.error('WebSocket error:', event)
   });
 
   // //For Local Hosting

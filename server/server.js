@@ -26,7 +26,7 @@ app.get('/api/some-endpoint', (req, res) => {
 
 // Serve React app for all other requests
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
 
 // Start the HTTP server
@@ -151,7 +151,7 @@ wss.on('connection', (ws) => {
 
     }
 
-    if (result.method === "getAllGames") {
+    if (result.method === "getAllGames") { // When user comes back from finishing a game -- Doesn't work
 
       const payload = {
         "method": "allGames",
@@ -159,19 +159,9 @@ wss.on('connection', (ws) => {
         "games": games
       }
 
-      // if (!clients[result.clientId]) {
-      //   const ws = new WebSocket('ws://localhost:3000');
-
-      //   clients[userData.clientId] = {
-      //     "connection": ws
-      //   };
-
-      //   clients 
-
-      // }
-
       const con = clients[result.clientId].connection;
       con.send(JSON.stringify(payload));
+
     }
 
     if (result.method === "checkAI") {
