@@ -1,0 +1,36 @@
+{
+  "parameters": {
+    "AMPLIFY_auth_websocketsc54e3a54_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "websocketsc54e3a54"
+        }
+      ]
+    },
+    "AMPLIFY_auth_websocketsc54e3a54_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "websocketsc54e3a54"
+        }
+      ]
+    },
+    "AMPLIFY_auth_websocketsc54e3a54_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "websocketsc54e3a54"
+        }
+      ]
+    },
+    "AMPLIFY_auth_websocketsc54e3a54_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "websocketsc54e3a54"
+        }
+      ]
+    }
+  }
+}

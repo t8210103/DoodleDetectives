@@ -7,7 +7,7 @@ const WebSocketContext = createContext();
 export const WebSocketProvider = ({ children }) => {
   const [connected, setConnected] = useState(false);
 
-  //For Server Hosting
+  // For Server Hosting
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket('wss://doodledetectives.pro/ws/', {
     //queryParams: { username: 'myUsername' },
     onOpen: () => setConnected(true),
@@ -16,10 +16,11 @@ export const WebSocketProvider = ({ children }) => {
   });
 
   // //For Local Hosting
-  // const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket('ws://localhost:3000', {
+  // const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket('ws://localhost:3001', {
   //   //queryParams: { username: 'myUsername' },
   //   onOpen: () => setConnected(true),
   //   onClose: () => setConnected(false),
+  //   onError: (event) => console.error('WebSocket error:', event)
   // });
 
 

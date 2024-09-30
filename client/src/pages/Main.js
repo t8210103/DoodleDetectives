@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getCurrentUser } from 'aws-amplify/auth';
 
 function Main() {
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
@@ -14,8 +15,8 @@ function Main() {
   const [numPlayers, setNumPlayers] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showDifficulty, setShowDifficulty] = useState(false);
+  const [name, setName] = useState("");
 
-  
   useEffect(() => {
 
     // When user redirects from a finished game
@@ -98,8 +99,27 @@ function Main() {
       if (response.method === "allGames" || response.method === "connect") { // allGames comes from functions
 
         if (response.method === "connect") {
-          setUserData(response.userData);
-          localStorage.setItem('userData', JSON.stringify(response.userData))
+
+          // After sign in
+          const getUsername = async () => {
+            try {
+
+              const user = await getCurrentUser();
+              setName(user.username); // The username of the signed-in user
+              let data = response.userData;
+              data.name = name;
+              setUserData(data);
+              localStorage.setItem('userData', JSON.stringify(data))
+
+              return name;
+
+            } catch (error) {
+              console.error('Error fetching user info:', error);
+            }
+          };  
+
+          getUsername();
+
         }
 
         if (response.games) {
@@ -179,8 +199,10 @@ function Main() {
 
   return (
     <div>
+      <a href="https://auth.doodledetectives.pro/login">Sign In / Sign Up</a>
+
       <h1>React Client</h1>
-      <h4>Welcome { userData.name } </h4>
+      <h4>Welcome { name } </h4>
       <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
 
       <button id="createBtn" className='createBtn' onClick={() => handleCreateGame()} disabled={!connected}>
