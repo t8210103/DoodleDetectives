@@ -2,7 +2,7 @@
 
 This repository focuses on implementing a drawing game that leverages AI to handle specific game requirements.
 
-### Technologies Used
+#### Technologies Used
 
 To meet the needs of this project, some of the technologies utilized are :
 
@@ -19,3 +19,6 @@ To meet the needs of this project, some of the technologies utilized are :
   - **EC2**: For server hosting
   - **Amplify**: For simplified backend development, including user authentication with **Cognito**
   - **Cognito**: For user authentication (integrated via Amplify)
+
+### More Information
+Visit us on: [Doodle Detectives](https://doodledetectives.pro/).
