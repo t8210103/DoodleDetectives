@@ -44,6 +44,14 @@ export default function App() {
             <Routes>
               <Route index element={<Main />} />
               {/*<Route path="/Main" element={<Main />} />*/}
+              {/* <Route element={<ProtectedRoutes />}>
+                <Route path="/GameLobby" element={<GameLobby />} />
+              </Route> */}
+              <Route path="/GameLobby" element={<GameLobby />} />
+              <Route path="/GamePage" element={<GamePage />} />
+              <Route path="*" element={<NoPage />} />
+              <Route index element={<Main />} />
+              {/*<Route path="/Main" element={<Main />} />*/}
               <Route element={<ProtectedRoutes />}>
                 <Route path="/GameLobby" element={<GameLobby />} />
               </Route>
