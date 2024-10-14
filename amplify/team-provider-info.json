@@ -1,0 +1,25 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-websockets-dev-9003e-authRole",
+      "UnauthRoleArn": "arn:aws:iam::324037301163:role/amplify-websockets-dev-9003e-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::324037301163:role/amplify-websockets-dev-9003e-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-websockets-dev-9003e-deployment",
+      "UnauthRoleName": "amplify-websockets-dev-9003e-unauthRole",
+      "StackName": "amplify-websockets-dev-9003e",
+      "StackId": "arn:aws:cloudformation:us-east-1:324037301163:stack/amplify-websockets-dev-9003e/5690eef0-7dbb-11ef-b784-1277415837d7",
+      "AmplifyAppId": "d130g6b4y5gp02"
+    },
+    "categories": {
+      "auth": {
+        "websocketsc54e3a54": {
+          "userPoolId": "us-east-1_BWXinBsce",
+          "userPoolName": "AIGAME-USER-POOL-1",
+          "webClientId": "45ljerckjsahekhpohracklc9",
+          "nativeClientId": "4asqdv64va2d31s0k7ei9vd7af"
+        }
+      }
+    }
+  }
+}

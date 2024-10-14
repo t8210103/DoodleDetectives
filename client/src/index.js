@@ -1,6 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+
+// AWS Amplify with Cognito
+import { Amplify } from 'aws-amplify';
+import awsExports from './aws-exports';
+Amplify.configure(awsExports);
+
 //import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
