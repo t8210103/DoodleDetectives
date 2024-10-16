@@ -2,10 +2,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
+import Header from '../components/Header';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getCurrentUser } from 'aws-amplify/auth';
 
-function Main() {
+function Main({ signOut, user }) {
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
   const navigate = useNavigate();
   const location = useLocation();
@@ -199,10 +200,8 @@ function Main() {
 
   return (
     <div>
-      <a href="https://auth.doodledetectives.pro/login">Sign In / Sign Up</a>
-
-      <h1>React Client</h1>
-      <h4>Welcome { name } </h4>
+      {user && <Header signOut={signOut} />}
+      <h1>Welcome { name } </h1>
       <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
 
       <button id="createBtn" className='createBtn' onClick={() => handleCreateGame()} disabled={!connected}>
@@ -238,14 +237,14 @@ function Main() {
       <div id = "divPlayers"></div>
       <div id = "divBoard"></div>
 
-      <div>
+      {/* <div>
         <h2>Last Message:</h2>
         <pre>{JSON.stringify(lastJsonMessage, null, 2)}</pre>
       </div>
       <div>
         <h2>Client Id:</h2>
         <pre>{userData.clientId}</pre>
-      </div>
+      </div> */}
     </div>
   );
 }

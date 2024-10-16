@@ -15,7 +15,7 @@ export const WebSocketProvider = ({ children }) => {
   //   onError: (event) => console.error('WebSocket error:', event)
   // });
 
-  //For Local Hosting
+  // For Local Hosting
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket('ws://localhost:3001', {
     //queryParams: { username: 'myUsername' },
     onOpen: () => setConnected(true),

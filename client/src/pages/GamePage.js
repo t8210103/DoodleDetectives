@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
 
 
-function GamePage() {
+function GamePage({ user }) {
     const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
 
     const location = useLocation();

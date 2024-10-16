@@ -110,9 +110,9 @@ function getRandomPrompt(category) {
 
     const drawingPrompts = {
         easy: [
-            'Apple', 'Balloon', 'Cat', 'Dog', 'Flower', 'House', 'Ice Cream', 
-            'Kite', 'Sun', 'Tree', 'Umbrella', 'Whale', 'Airplane', 
-            'Bicycle', 'Camera'
+            'House', 'Tree', 'Cat', 'Dog', 'Car', 'Heart', 'Star', 
+            'Fish', 'Bird', 'Cup', 'Chair', 'Ball', 'Airplane', 
+            'Glasses', 'Hat'
         ],
         medium: [
             'Elephant', 'Giraffe', 'Jellyfish', 'Lion', 'Mountain', 'Owl', 

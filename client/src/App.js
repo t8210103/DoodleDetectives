@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import './styles.css'
 import Main from './pages/Main.js';
 import GameLobby from './pages/GameLobby.js';
 import GamePage from './pages/GamePage.js';
@@ -11,8 +12,12 @@ import ProtectedRoutes from './utils/ProtectedRoutes.js';
 import awsExports from './aws-exports';
 import { Authenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
-import '@aws-amplify/ui-react/styles.css'; // Optional: for default styles
+import '@aws-amplify/ui-react/styles.css';  // Optional: for default styles
+
 Amplify.configure(awsExports);
+
+// Initialize your token object
+let auth = { token: false };
 
 export default function App() {
   return (
@@ -24,7 +29,7 @@ export default function App() {
             username: {
               label: "Username",
               placeholder: "Enter your username",
-              isRequired: true,   // Correct attribute for Amplify form fields
+              isRequired: true,
             },
             password: {
               label: "Password",
@@ -39,19 +44,27 @@ export default function App() {
           }
         }}
       >
-        <WebSocketProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route index element={<Main />} />
-              {/*<Route path="/Main" element={<Main />} />*/}
-              <Route element={<ProtectedRoutes />}>
-                <Route path="/GameLobby" element={<GameLobby />} />
-              </Route>
-              <Route path="/GamePage" element={<GamePage />} />
-              <Route path="*" element={<NoPage />} />
-            </Routes>
-          </BrowserRouter>
-        </WebSocketProvider>
+        {({ signOut, user }) => {
+          // Update token when user is authenticated
+          if (user) {
+            auth.token = true;  // Set token to true when user is authenticated
+          }
+
+          return (
+            <WebSocketProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route index element={<Main signOut={signOut} user={user} />} />
+                  <Route element={<ProtectedRoutes auth={auth} />}>
+                    <Route path="/GameLobby" element={<GameLobby signOut={signOut} user={user} />} />
+                    <Route path="/GamePage" element={<GamePage signOut={signOut} user={user} />} />
+                  </Route>
+                  <Route path="*" element={<NoPage />} />
+                </Routes>
+              </BrowserRouter>
+            </WebSocketProvider>
+          );
+        }}
       </Authenticator>
     </>
   );
