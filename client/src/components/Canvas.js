@@ -9,8 +9,8 @@ export default function Canvas({ canEdit, game, userData }) {
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
   const navigate = useNavigate();
 
-  const colorInputRef = useRef(null); // No need for HTMLInputElement typing
-  const canvasRef = useRef(null); // No need for ReactSketchCanvasRef typing
+  const colorInputRef = useRef(null);
+  const canvasRef = useRef(null);
   const base64String = useRef(null)
   const [strokeColor, setStrokeColor] = useState('#203354');
   const [eraseMode, setEraseMode] = useState(false);
@@ -27,7 +27,8 @@ export default function Canvas({ canEdit, game, userData }) {
   base64String.current = base64;
 
   const handleStrokeColorChange = (event) => {
-    setStrokeColor(event.target.value); // Update the state with the new color
+    // Update the state with the new color
+    setStrokeColor(event.target.value);
   };
 
   const handleEraserClick = () => {
@@ -74,12 +75,14 @@ export default function Canvas({ canEdit, game, userData }) {
 
   };
 
+  // In order to update wins (to do) AND send all other players that they lost
   const declareWinner = () => {
 
-    const payload = { // In order to update wins in database AND send all other players that they lost
+    const payload = {
       "method": "newWin",
       "game": game,
-      "userData": userData // winners data
+       // winners data
+      "userData": userData
     }
 
     sendJsonMessage(payload);   
@@ -89,7 +92,8 @@ export default function Canvas({ canEdit, game, userData }) {
 
     if (canvasRef.current) {
 
-      const dataURL = await canvasRef.current?.exportImage('png') // dataURL is base64String
+      // dataURL is base64String
+      const dataURL = await canvasRef.current?.exportImage('png')
       const base64String = dataURL.split(',')[1];
 
       const payload = {
@@ -135,7 +139,7 @@ export default function Canvas({ canEdit, game, userData }) {
 
       if (response.method === "resultAI" && canEdit) {
 
-        if (response.found) {  // Add a "!" for testing
+        if (!response.found) {  // Add a "!" for testing
 
           setShowModal(true);
           declareWinner();

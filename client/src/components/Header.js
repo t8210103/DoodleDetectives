@@ -1,6 +1,5 @@
-// Header.js
 import React from 'react';
-import '../styles.css';  // Ensure you are importing your styles
+import '../styles.css';
 
 const Header = ({ signOut }) => {
   return (

@@ -1,6 +1,5 @@
 const { guid, updateAvailableGames, updateLobbyState, visionAI, getRandomPrompt } = require('../server/src/functions');
 
-//hashmaps
 const clients = {};
 const games = {};
 let lastStroke = false;
@@ -16,13 +15,8 @@ const httpServer = http.createServer(app);
 // Create a WebSocket server attached to the HTTPS server
 const wss = new WebSocket.Server({ server: httpServer });
 
-// Serve static files from the React app
+// Serve files from the React app
 app.use(express.static(path.join(__dirname, '../client/build')));
-
-// Define your API routes
-app.get('/api/some-endpoint', (req, res) => {
-    res.json({ message: "Hello from the API!" });
-});
 
 // Serve React app for all other requests
 app.get('*', (req, res) => {
@@ -34,29 +28,12 @@ httpServer.listen(3001, '127.0.0.1', () => {
   console.log('HTTP and WebSocket server running on port 3001');
 });
 
-
-//random name generator - delete later
-function getRandomElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-function generateRandomName() {
-  const adjectives = ["Blue", "Fast", "Silent", "Bold", "Clever", "Bright"];
-  const nouns = ["Tiger", "Eagle", "Panther", "Wolf", "Falcon", "Lion"];
-  
-  const randomAdjective = getRandomElement(adjectives);
-  const randomNoun = getRandomElement(nouns);
-  const randomNumber = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
-
-  return `${randomAdjective}${randomNoun}${randomNumber}`;
-}
-
 wss.on('connection', (ws) => {
 
-  // Creating userData.clientId
+  // Creating userData
   const userData = {
     "clientId": guid(),
-    "name": generateRandomName(),
+    "name": null,
     "base64String": null
   };
   
@@ -90,7 +67,7 @@ wss.on('connection', (ws) => {
 
       games[gameId] = {
           "id": gameId,
-          "toDraw": randomWord, // easy or Mmedium
+          "toDraw": randomWord,
           "numPlayers": numPlayers,
           "difficulty": difficulty,
           "clients":[]
@@ -119,10 +96,9 @@ wss.on('connection', (ws) => {
       const userData = result.userData;
 
       games[gameId].clients.push({
-          "userData": userData //contains specs like name (get from database), surname (get from database), points (get from database) etc
+          "userData": userData //contains user data, add wins
       })
 
-      // if (game.clients.length === 2) updateGameState();
       const payload = {
           "method": "lobby",
           "games": games,
@@ -151,7 +127,7 @@ wss.on('connection', (ws) => {
 
     }
 
-    if (result.method === "getAllGames") { // When user comes back from finishing a game -- Doesn't work
+    if (result.method === "getAllGames") { // When user comes back from finishing a game
 
       const payload = {
         "method": "allGames",
@@ -229,7 +205,7 @@ wss.on('connection', (ws) => {
 
       const payload = {
         "method": "playerLost",
-        "winnerData": winnerData // To show who the winner was
+        "winnerData": winnerData // To show the winner
       }
 
       for (let client of game.clients) {
@@ -237,7 +213,6 @@ wss.on('connection', (ws) => {
         // Send payload to players that lost
         if (client.userData && client.userData.clientId != winnerData.clientId) {
 
-          //client.userData.base64String = null; --> is done on server side
           const connection = clients[client.userData.clientId].connection;
           connection.send(JSON.stringify(payload));
 

@@ -1,5 +1,5 @@
 // client/src/Main.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
 import Header from '../components/Header';
@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { getCurrentUser } from 'aws-amplify/auth';
 
 function Main({ signOut, user }) {
+
   const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,28 +35,12 @@ function Main({ signOut, user }) {
 
       sendJsonMessage(payload);
     }
-
-    // if (!oldUserData && lastJsonMessage === null) {
-      
-    //   const storedUserData = localStorage.getItem('userData');
-
-    //   if (storedUserData) {
-    //     setUserData(storedUserData);
-
-    //     const payload = {
-    //       "method": "getAllGames",
-    //       "clientId": storedUserData.clientId;
-    //       "fromGame": true
-    //     }
-
-    //     sendJsonMessage(payload);
-    //   }
-    // }
     
   }, []);
 
   const handleCreateGame = () => {
-    setShowInput(true); // Show the input field when the button is clicked
+    // Show the input field (for number of players) when the button is clicked
+    setShowInput(true);
   };
 
   const handleInputChangeOnCreate = (event) => {
@@ -163,11 +148,12 @@ function Main({ signOut, user }) {
         
             d.appendChild(infoContainer);
 
-            //inside join button
+            // Inside join button
             const b = document.createElement("button");
             b.classList.add("joinButton");
             b.textContent = "Click to join game";
-            b.addEventListener("click", e => { //Click to join a game
+            // Click to join a game
+            b.addEventListener("click", e => {
                 const payload = {
                     "method": "join",
                     "userData": userData,
@@ -192,7 +178,8 @@ function Main({ signOut, user }) {
           "userData": response.userData
         };
 
-        navigate('/GameLobby', { state: { payload } });  // Check if navigate sends payload either way
+        navigate('/GameLobby', { state: { payload } });
+        
       }
     }
   }, [lastJsonMessage, userData, gameId]);
@@ -201,7 +188,7 @@ function Main({ signOut, user }) {
   return (
     <div>
       {user && <Header signOut={signOut} />}
-      <h1>Welcome { name } </h1>
+      <h1>Welcome { name ? name: userData.name } </h1>
       <p>Status: {connected ? 'Connected' : 'Disconnected'}</p>
 
       <button id="createBtn" className='createBtn' onClick={() => handleCreateGame()} disabled={!connected}>
