@@ -1,4 +1,3 @@
-// client/src/WebSocketContext.js
 import React, { createContext, useContext, useState } from 'react';
 import useWebSocket from 'react-use-websocket';
 

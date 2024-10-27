@@ -1,6 +1,3 @@
-// src/components/SignUp.js
-
-
 // CURRENTLY NOT BEING USED
 import React, { useState } from 'react';
 import { signUp } from 'aws-amplify/auth';

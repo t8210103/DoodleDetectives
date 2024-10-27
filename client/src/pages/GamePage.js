@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
 import EachPlayer from '../components/EachPlayer.js';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import _ from 'lodash';
 
 
@@ -10,11 +10,13 @@ function GamePage({ user }) {
     const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
 
     const location = useLocation();
+    const navigate = useNavigate();
     let { payload } = location.state || {};
 
     const [userData, setUserData] = useState(payload.userData || null);
     const [game, setGame] = useState(payload.game || null);
-    const oppDataList = game.clients.filter(client => client.userData.clientId !== userData.clientId); // All opponents userData list
+    // All opponents userData list
+    const oppDataList = game.clients.filter(client => client.userData.clientId !== userData.clientId);
     const iRef = useRef(0);
     const flagRef = useRef(false);
     const [oppData, setOppData] = useState(oppDataList[iRef.current].userData ||null);
@@ -23,7 +25,7 @@ function GamePage({ user }) {
         iRef.current = (iRef.current + 1) % (game.clients.length - 1);
         setOppData(oppDataList[iRef.current].userData);
     }
-    
+
     useEffect(() => { 
 
         if (lastJsonMessage != null) {

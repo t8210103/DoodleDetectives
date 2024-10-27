@@ -16,14 +16,15 @@ import '@aws-amplify/ui-react/styles.css';  // Optional: for default styles
 
 Amplify.configure(awsExports);
 
-// Initialize your token object
+// Initialize token object
 let auth = { token: false };
 
 export default function App() {
   return (
     <>
       <Authenticator
-        signUpAttributes={['email']}  // Specify sign-up attributes
+        // Specify sign-up attributes, must agree with aws configuration
+        signUpAttributes={['email']}
         formFields={{
           signUp: {
             username: {
@@ -47,7 +48,7 @@ export default function App() {
         {({ signOut, user }) => {
           // Update token when user is authenticated
           if (user) {
-            auth.token = true;  // Set token to true when user is authenticated
+            auth.token = true;
           }
 
           return (

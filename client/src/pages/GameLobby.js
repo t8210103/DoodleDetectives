@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css'
 import { useWebSocketContext } from '../components/WebSocketContext.js';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 
 function GameLobby() {
     const { sendJsonMessage, lastJsonMessage, connected } = useWebSocketContext();
@@ -15,20 +15,16 @@ function GameLobby() {
     const flagRef = useRef(true);
     const [waitMessage, setWaitMessage] = useState();
 
-    // Handle user going back with arrows
+    // When user goes back manually (arrows) 
+    const navType = useNavigationType();
     useEffect(() => {
 
-        const handlePopState = () => {
-            navigate('/', { replace: true, state: { userData } });
-        };
+        if (navType === "POP") {
+            navigate('/');
+        }
 
-        window.addEventListener('popstate', handlePopState);
-
-        return () => {
-            window.removeEventListener('popstate', handlePopState);
-        };
-
-    }, [navigate, location]);
+    }, [navType]);
+      
 
     useEffect(() => {
 
