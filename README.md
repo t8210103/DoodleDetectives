@@ -21,4 +21,4 @@ To meet the needs of this project, some of the technologies utilized are :
   - **Cognito**: For user authentication (integrated via Amplify)
 
 ### More Information
-Visit us on: [Doodle Detectives](https://doodledetectives.pro/).
+Visit us on: [Doodle Detectives](https://doodledetectives.pro/). (Currently inactive to avoid unnecessary charges)
