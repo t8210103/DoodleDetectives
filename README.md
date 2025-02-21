@@ -22,4 +22,4 @@ To meet the needs of this project, some of the technologies utilized are :
 
 ### More Information
 Visit us on: [Doodle Detectives](https://doodledetectives.pro/). (Currently inactive to avoid unnecessary charges) <br><br>
-Can be run locally using -> node .\server\server.js
+Can be run locally using -> _node .\server\server.js_ and navigating to http://localhost:3001/
